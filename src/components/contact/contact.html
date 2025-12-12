@@ -1,0 +1,193 @@
+<div class="min-h-screen bg-white">
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 overflow-hidden bg-teal-50/50">
+        <div class="absolute inset-0 -z-10">
+            <div
+                class="absolute top-0 right-0 -mr-32 -mt-32 w-[600px] h-[600px] bg-teal-100/40 rounded-full blur-3xl opacity-50">
+            </div>
+            <div
+                class="absolute bottom-0 left-0 -ml-32 -mb-32 w-[400px] h-[400px] bg-orange-50 rounded-full blur-3xl opacity-50">
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-teal-100 mb-8 shadow-sm">
+                <span class="flex h-2 w-2 rounded-full bg-teal-500"></span>
+                <span class="text-sm font-medium text-teal-700 tracking-wide uppercase">Get in Touch</span>
+            </div>
+
+            <h1 class="text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 mb-6">
+                We'd love to <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-teal-400">hear
+                    from you</span>
+            </h1>
+
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Have a question about African superfoods or need help with your meal plan? Our team is here to assist.
+            </p>
+        </div>
+    </section>
+
+    <!-- Contact Content -->
+    <section class="py-24 px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16">
+
+            <!-- Contact Form -->
+            <div
+                class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-gray-100 border border-gray-100 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-bl-[2.5rem] -mr-8 -mt-8 -z-0"></div>
+
+                <h2 class="text-3xl font-bold text-gray-900 mb-8 relative z-10">Send us a Message</h2>
+
+                <form (ngSubmit)="onSubmit()" class="space-y-6 relative z-10">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Name</label>
+                            <input type="text" [(ngModel)]="formData.name" name="name"
+                                class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all outline-none"
+                                placeholder="Your name">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                            <input type="email" [(ngModel)]="formData.email" name="email"
+                                class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all outline-none"
+                                placeholder="you@example.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Subject</label>
+                        <input type="text" [(ngModel)]="formData.subject" name="subject"
+                            class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all outline-none"
+                            placeholder="How can we help?">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Message</label>
+                        <textarea [(ngModel)]="formData.message" name="message" rows="5"
+                            class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all outline-none resize-none"
+                            placeholder="Tell us more..."></textarea>
+                    </div>
+
+                    <div *ngIf="successMessage"
+                        class="p-4 bg-green-50 text-green-700 rounded-xl flex items-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {{ successMessage }}
+                    </div>
+
+                    <button type="submit" [disabled]="isSubmitting"
+                        class="w-full py-4 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-1">
+                        {{ isSubmitting ? 'Sending...' : 'Send Message' }}
+                    </button>
+                </form>
+            </div>
+
+            <!-- Info Cards -->
+            <div class="space-y-8 lg:pt-8">
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <div
+                        class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
+                        <div
+                            class="w-12 h-12 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900">Email Us</h3>
+                        <p class="text-sm text-gray-500 mb-2">For general inquiries</p>
+                        <a href="mailto:hello@foodbot.ng"
+                            class="font-semibold text-teal-600 hover:text-teal-700">hello&#64;foodbot.ng</a>
+                    </div>
+
+                    <div
+                        class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
+                        <div
+                            class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-600 mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900">Support</h3>
+                        <p class="text-sm text-gray-500 mb-2">Need help?</p>
+                        <a href="mailto:support@foodbot.ng"
+                            class="font-semibold text-orange-600 hover:text-orange-700">support&#64;foodbot.ng</a>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-gradient-to-br from-teal-900 to-gray-900 rounded-3xl p-8 text-white relative overflow-hidden">
+                    <div class="absolute top-0 right-0 -mr-16 -mt-16 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                    <h3 class="text-xl font-bold mb-4">Office Hours</h3>
+                    <div class="space-y-3 text-gray-300">
+                        <div class="flex justify-between border-b border-white/10 pb-2">
+                            <span>Monday - Friday</span>
+                            <span class="text-white font-medium">9:00 AM - 6:00 PM</span>
+                        </div>
+                        <div class="flex justify-between border-b border-white/10 pb-2">
+                            <span>Saturday</span>
+                            <span class="text-white font-medium">10:00 AM - 4:00 PM</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Sunday</span>
+                            <span class="text-white font-medium">Closed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-[2rem] p-8 border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="font-bold text-gray-900">Follow Us</h3>
+                            <p class="text-sm text-gray-500">Join our community</p>
+                        </div>
+                        <div class="flex -space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-teal-100 border-2 border-white"></div>
+                            <div class="w-8 h-8 rounded-full bg-orange-100 border-2 border-white"></div>
+                            <div class="w-8 h-8 rounded-full bg-blue-100 border-2 border-white"></div>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <a href="#"
+                            class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-gray-600 hover:text-teal-600 hover:scale-110 transition-all text-xl">📸</a>
+                        <a href="#"
+                            class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-gray-600 hover:text-teal-600 hover:scale-110 transition-all text-xl">🐦</a>
+                        <a href="#"
+                            class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-gray-600 hover:text-teal-600 hover:scale-110 transition-all text-xl">📘</a>
+                        <a href="#"
+                            class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-gray-600 hover:text-teal-600 hover:scale-110 transition-all text-xl">💼</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-20 px-6 lg:px-8 bg-gray-50/50">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Common Questions</h2>
+            <div class="space-y-4">
+                <div *ngFor="let faq of faqs"
+                    class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <button (click)="toggleFaq(faq)"
+                        class="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 transition-colors">
+                        <span class="font-bold text-gray-900">{{ faq.question }}</span>
+                        <span class="ml-4 transform transition-transform duration-200 text-teal-500"
+                            [class.rotate-180]="faq.open">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </span>
+                    </button>
+                    <div class="px-6 pb-6 text-gray-600 leading-relaxed" *ngIf="faq.open">
+                        {{ faq.answer }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

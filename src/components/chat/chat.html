@@ -1,0 +1,132 @@
+<div class="h-[calc(100vh-97px)] bg-gray-50 flex flex-col font-sans">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between shadow-sm shrink-0">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-gray-900">FoodBot Assistant</h1>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span class="text-xs text-green-600 font-medium">Online & Ready to help</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <main class="flex-1 max-w-7xl mx-auto w-full p-4 lg:p-6 flex gap-6 overflow-hidden h-full">
+
+        <!-- Sidebar and Quick Questions (Desktop) -->
+        <aside class="hidden lg:flex flex-col w-80 shrink-0 gap-6 h-full overflow-hidden">
+            <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col max-h-[60%]">
+                <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 shrink-0">
+                    <span class="text-lg">💡</span> Suggested Topics
+                </h3>
+                <div class="space-y-2 overflow-y-auto pr-2 custom-scrollbar">
+                    <button *ngFor="let q of quickQuestions" (click)="askQuestion(q)" [disabled]="isBotTyping"
+                        class="w-full text-left p-3 rounded-xl hover:bg-teal-50 text-sm text-gray-600 hover:text-teal-700 transition-colors border border-transparent hover:border-teal-100 group flex items-center justify-between">
+                        {{ q }}
+                        <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div
+                class="bg-gradient-to-br from-teal-900 to-teal-800 rounded-2xl p-6 text-white relative overflow-hidden flex-1 min-h-[150px]">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                <h3 class="font-bold text-lg mb-2 relative z-10">Pro Tip</h3>
+                <p class="text-teal-100 text-sm leading-relaxed relative z-10 overflow-y-auto max-h-full">
+                    Try asking for a localized version of your favorite dish! I can help you find substitutions for
+                    ingredients.
+                </p>
+            </div>
+        </aside>
+
+        <!-- Chat Area -->
+        <section
+            class="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden relative h-full">
+
+            <!-- Messages -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth" #messageContainer>
+
+                <div class="text-center py-4">
+                    <span class="bg-gray-100 text-gray-500 text-xs px-3 py-1 rounded-full">Today</span>
+                </div>
+
+                <div *ngFor="let msg of messages; trackBy: trackByMessage" class="flex flex-col animate-fade-in"
+                    [class.items-end]="msg.type === 'user'" [class.items-start]="msg.type === 'bot'">
+
+                    <div class="flex items-end gap-2 max-w-[85%] lg:max-w-[75%] group">
+                        <!-- Bot Avatar -->
+                        <div *ngIf="msg.type === 'bot'"
+                            class="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center shrink-0 mb-1">
+                            <span class="text-xs font-bold">AI</span>
+                        </div>
+
+                        <div class="px-5 py-3.5 shadow-sm relative text-sm md:text-base leading-relaxed" [ngClass]="{
+                   'bg-teal-600 text-white rounded-2xl rounded-tr-sm': msg.type === 'user',
+                   'bg-gray-100 text-gray-800 rounded-2xl rounded-tl-sm': msg.type === 'bot'
+                 }">
+                            {{ msg.text }}
+                        </div>
+                    </div>
+
+                    <span class="text-[10px] text-gray-400 mt-1 px-2" [class.mr-10]="msg.type === 'bot'"
+                        [class.text-right]="msg.type === 'user'">
+                        {{ msg.time | date:'shortTime' }}
+                    </span>
+                </div>
+
+                <!-- Typing Indicator -->
+                <div *ngIf="isBotTyping" class="flex items-end gap-2 animate-fade-in">
+                    <div
+                        class="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center shrink-0 mb-1">
+                        <span class="text-xs font-bold">AI</span>
+                    </div>
+                    <div class="bg-gray-100 rounded-2xl rounded-tl-sm px-4 py-3 flex gap-1 items-center h-[46px]">
+                        <span
+                            class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                        <span
+                            class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                        <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Quick Questions (Mobile) -->
+            <div class="lg:hidden px-4 pb-2 flex gap-2 overflow-x-auto no-scrollbar scroll-smooth shrink-0 py-2">
+                <button *ngFor="let q of quickQuestions" (click)="askQuestion(q)" [disabled]="isBotTyping"
+                    class="whitespace-nowrap px-4 py-2 bg-gray-50 border border-gray-100 rounded-full text-sm text-gray-600 flex-shrink-0 active:bg-teal-50 active:text-teal-700">
+                    {{ q }}
+                </button>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-4 border-t border-gray-100 bg-white shrink-0 z-10">
+                <div class="relative flex items-center gap-2">
+                    <input type="text" [(ngModel)]="userInput" (keyup.enter)="sendMessage()"
+                        placeholder="Ask anything about African food..."
+                        class="flex-1 pl-5 pr-12 py-4 bg-gray-50 border-0 rounded-xl text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-teal-500/20 focus:bg-white transition-all outline-none"
+                        [disabled]="isBotTyping" />
+                    <button (click)="sendMessage()" [disabled]="!userInput.trim() || isBotTyping"
+                        class="absolute right-2 p-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:hover:bg-teal-600 transition-colors">
+                        <svg class="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                    </button>
+                </div>
+                <p class="text-center text-xs text-gray-400 mt-3">FoodBot can make mistakes. Verify important info.</p>
+            </div>
+        </section>
+    </main>
+</div>
