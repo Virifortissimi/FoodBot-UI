@@ -78,11 +78,14 @@
                         class="mt-12 inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm p-2 pr-6 rounded-full border border-gray-100 shadow-sm">
                         <div class="flex -space-x-2">
                             <img class="w-8 h-8 rounded-full border-2 border-white object-cover"
-                                src="https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg" alt="User">
+                                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=64&h=64"
+                                alt="User">
                             <img class="w-8 h-8 rounded-full border-2 border-white object-cover"
-                                src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg" alt="User">
+                                src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=64&h=64"
+                                alt="User">
                             <img class="w-8 h-8 rounded-full border-2 border-white object-cover"
-                                src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg" alt="User">
+                                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=64&h=64"
+                                alt="User">
                         </div>
                         <span class="text-sm font-medium text-gray-600">Loved by <span
                                 class="font-bold text-teal-700">50,000+</span> families</span>
@@ -92,7 +95,7 @@
                 <div class="lg:w-1/2 relative lg:translate-x-12">
                     <div
                         class="relative rounded-[3rem] overflow-hidden shadow-2xl shadow-orange-900/10 rotate-2 hover:rotate-0 transition-transform duration-700">
-                        <img src="https://images.pexels.com/photos/3196532/pexels-photo-3196532.jpeg"
+                        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                             alt="Happy family eating" class="w-full object-cover h-[650px]">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent">
                         </div>
@@ -168,6 +171,52 @@
         </div>
     </section>
 
+    <!-- How It Works Section -->
+    <section class="py-24 bg-white relative">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-16 text-center font-display">How FoodBot Works
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-12 relative">
+                <!-- Connecting Line (Desktop) -->
+                <div class="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-orange-100 -z-10"></div>
+
+                <!-- Step 1 -->
+                <div class="text-center relative bg-white md:bg-transparent">
+                    <div
+                        class="w-24 h-24 mx-auto mb-6 bg-orange-50 rounded-full flex items-center justify-center text-3xl shadow-sm">
+                        📝
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">1. Tell Us Your Goals</h3>
+                    <p class="text-gray-600">Share your dietary preferences, health goals, and favorite African flavors.
+                    </p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="text-center relative bg-white md:bg-transparent">
+                    <div
+                        class="w-24 h-24 mx-auto mb-6 bg-teal-50 rounded-full flex items-center justify-center text-3xl shadow-sm">
+                        🤖
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">2. Get Your Plan</h3>
+                    <p class="text-gray-600">Our AI curates a personalized meal plan blending tradition with nutrition.
+                    </p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="text-center relative bg-white md:bg-transparent">
+                    <div
+                        class="w-24 h-24 mx-auto mb-6 bg-amber-50 rounded-full flex items-center justify-center text-3xl shadow-sm">
+                        🍳
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">3. Shop & Cook</h3>
+                    <p class="text-gray-600">Get generated shopping lists and step-by-step recipes to cook with ease.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Interactive Superfoods Section -->
     <section class="py-24 bg-teal-900 text-white overflow-hidden relative">
         <!-- Botanical Illustrations Background (Abstract) -->
@@ -231,10 +280,94 @@
         </div>
     </section>
 
+    <!-- Featured Recipes Section -->
+    <section class="py-24 bg-orange-50/50">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <span class="text-teal-600 font-bold uppercase tracking-wider text-sm mb-2 block">Delicious &
+                        Nutritious</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 font-display">Heritage on a Plate</h2>
+                </div>
+                <!-- Controls could go here -->
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div *ngFor="let recipe of featuredRecipes"
+                    class="bg-white rounded-3xl overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
+                    <div class="h-64 overflow-hidden relative">
+                        <img [src]="recipe.image" [alt]="recipe.title"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div
+                            class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-800">
+                            {{ recipe.calories }} kcal
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <span class="text-teal-600 text-xs font-bold uppercase tracking-wide">{{ recipe.category
+                            }}</span>
+                        <h3 class="text-xl font-bold text-gray-900 mt-2 mb-3">{{ recipe.title }}</h3>
+                        <a href="#"
+                            class="inline-flex items-center text-gray-500 text-sm hover:text-orange-500 font-medium group">
+                            View Recipe
+                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-24 bg-white">
+        <div class="max-w-3xl mx-auto px-6 lg:px-8">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-12 text-center font-display">Common Questions
+            </h2>
+            <div class="space-y-6">
+                <div *ngFor="let f of faqs"
+                    class="border border-gray-100 rounded-2xl p-6 hover:border-teal-100 transition-colors">
+                    <h3 class="font-bold text-gray-900 text-lg mb-2">{{ f.question }}</h3>
+                    <p class="text-gray-600 leading-relaxed">{{ f.answer }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="py-20">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="bg-teal-900 rounded-[3rem] p-12 md:p-16 relative overflow-hidden text-center">
+                <!-- Decorative Circles -->
+                <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-teal-800 rounded-full opacity-50"></div>
+                <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-72 h-72 bg-teal-800 rounded-full opacity-50"></div>
+
+                <div class="relative z-10 max-w-2xl mx-auto">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-6 font-display">Get a Taste of Africa</h2>
+                    <p class="text-teal-100 mb-8 text-lg">Join 15,000+ others getting weekly heritage recipes and
+                        wellness tips delivered to their inbox.</p>
+
+                    <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                        <input type="email" placeholder="Your email address"
+                            class="flex-1 px-6 py-4 rounded-full bg-white/10 text-white placeholder-teal-200 border border-teal-700/50 focus:outline-none focus:ring-2 focus:ring-orange-400">
+                        <button type="button"
+                            class="px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-colors shadow-lg shadow-orange-900/20">
+                            Subscribe
+                        </button>
+                    </form>
+                    <p class="text-teal-300 text-xs mt-4">We respect your privacy. Unsubscribe at any time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Personal Note / Pre-Footer -->
     <section class="py-20 bg-white text-center">
         <div class="max-w-2xl mx-auto px-6">
-            <img src="https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg"
+            <img src="https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&w=150&h=150"
                 class="w-20 h-20 rounded-full mx-auto mb-6 object-cover border-4 border-orange-50 shadow-lg">
             <h3 class="text-xl font-bold text-gray-900 mb-4 font-display">A Note from Our Founders</h3>
             <p class="text-lg text-gray-600 italic leading-relaxed mb-8">

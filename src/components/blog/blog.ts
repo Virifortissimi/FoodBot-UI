@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FooterComponent } from '../footer/footer.component';
 
 interface BlogPost {
     id: number;
@@ -18,7 +19,7 @@ interface BlogPost {
 @Component({
     selector: 'app-blog',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule, RouterLink, FooterComponent],
     templateUrl: './blog.html',
     styleUrls: ['./blog.css']
 })
