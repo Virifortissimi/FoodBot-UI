@@ -1,0 +1,128 @@
+.app-bootstrap-loader {
+  min-height: calc(100vh - var(--public-beta-banner-height));
+  margin-top: var(--public-beta-banner-height);
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.14), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.08), transparent 24%),
+    var(--surface-base);
+}
+
+
+.app-bootstrap-loader__card {
+  width: min(26rem, 100%);
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  background: color-mix(in srgb, var(--surface-elevated) 92%, white 8%);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+}
+
+.app-bootstrap-loader__brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.app-bootstrap-loader__brand strong {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--ink-primary);
+}
+
+.app-bootstrap-loader__brand small {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--ink-secondary);
+  font-size: 0.9rem;
+}
+
+.app-bootstrap-loader__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, var(--green-500), var(--green-400));
+  color: white;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  box-shadow: 0 14px 28px rgba(34, 197, 94, 0.22);
+}
+
+.app-bootstrap-loader__mark img {
+  width: 1.7rem;
+  height: 1.7rem;
+  display: block;
+  object-fit: contain;
+}
+
+.app-bootstrap-loader__progress {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-subtle) 84%, var(--green-100) 16%);
+}
+
+.app-bootstrap-loader__progress span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--green-400), var(--green-600));
+  box-shadow: 0 0 18px rgba(34, 197, 94, 0.28);
+  animation: app-bootstrap-loader-race 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.app-bootstrap-loader__spinner-wrap {
+  display: grid;
+  place-items: center;
+  width: 100%;
+}
+
+.app-bootstrap-loader__spinner {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  border: 3px solid color-mix(in srgb, var(--border-subtle) 70%, transparent 30%);
+  border-top-color: var(--green-500);
+  border-right-color: var(--green-400);
+  animation: app-bootstrap-loader-spin 0.8s linear infinite;
+}
+
+@keyframes app-bootstrap-loader-race {
+  0% {
+    width: 18%;
+    transform: translateX(0%);
+  }
+
+  55% {
+    width: 52%;
+    transform: translateX(58%);
+  }
+
+  85% {
+    width: 18%;
+    transform: translateX(78%);
+  }
+
+  100% {
+    width: 14%;
+    transform: translateX(610%);
+  }
+}
+
+@keyframes app-bootstrap-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

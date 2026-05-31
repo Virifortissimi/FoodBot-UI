@@ -1,0 +1,175 @@
+<nav class="navbar" [class.navbar-transparent]="!scrolled" [class.navbar-scrolled]="scrolled">
+  <div class="navbar-inner">
+
+    <!-- Logo -->
+    <div class="navbar-brand" routerLink="/" aria-label="FoodBot home">
+      <img
+        src="https://res.cloudinary.com/virifortissimi/image/upload/e_trim,w_180/v1780138048/Foodbot/logo-colored.png"
+        alt="FoodBot"
+        class="navbar-brand__logo">
+    </div>
+
+    <!-- Desktop Nav Links -->
+    <div class="hidden md:flex items-center gap-1">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Home</a>
+      <div class="relative">
+        <button
+          type="button"
+          class="nav-link nav-link-button"
+          [class.active]="productsActive"
+          (click)="toggleMenu('product', $event)">
+          Product
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+
+        <div *ngIf="productMenuOpen" class="nav-dropdown card-glass animate-slide-up">
+          <a
+            *ngFor="let item of productLinks"
+            [routerLink]="item.link"
+            routerLinkActive="active"
+            class="nav-dropdown__link"
+            (click)="closeMenus()">
+            {{ item.label }}
+          </a>
+        </div>
+      </div>
+
+      <div class="relative">
+        <button
+          type="button"
+          class="nav-link nav-link-button"
+          [class.active]="resourcesActive"
+          (click)="toggleMenu('resource', $event)">
+          Resources
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+
+        <div *ngIf="resourceMenuOpen" class="nav-dropdown card-glass animate-slide-up">
+          <a
+            *ngFor="let item of resourceLinks"
+            [routerLink]="item.link"
+            routerLinkActive="active"
+            class="nav-dropdown__link"
+            (click)="closeMenus()">
+            {{ item.label }}
+          </a>
+        </div>
+      </div>
+
+      <a routerLink="/about" routerLinkActive="active" class="nav-link">About Us</a>
+      <a routerLink="/contact" routerLinkActive="active" class="nav-link">Contact Us</a>
+    </div>
+
+    <!-- Desktop Auth / Profile -->
+    <div class="hidden md:flex items-center gap-3">
+      <ng-container *ngIf="!authService.token(); else signedInActions">
+        <a routerLink="/auth/login" class="nav-link">Log in</a>
+        <a routerLink="/auth/register" class="btn-dark btn-sm">Get Started</a>
+      </ng-container>
+
+      <ng-template #signedInActions>
+        <button (click)="logout()" class="btn-outline btn-sm"
+          style="color: var(--color-error); border-color: var(--color-error);">
+          Logout
+        </button>
+      </ng-template>
+
+      <!-- User Dropdown -->
+      <div *ngIf="authService.token()" class="relative">
+        <button (click)="userDropdownOpen = !userDropdownOpen"
+          class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg hover:scale-105 transition-transform"
+          style="background: var(--green-500);">
+          {{userInitial}}
+        </button>
+
+        <div *ngIf="userDropdownOpen" class="card-glass absolute right-0 mt-2 w-48 py-2 animate-slide-up"
+          style="z-index: 200;">
+          <a routerLink="/dashboard" (click)="userDropdownOpen=false"
+            class="block px-4 py-2 text-sm hover:bg-[var(--surface-hover)] transition-colors"
+            style="color: var(--ink-secondary);">Dashboard</a>
+          <a routerLink="/profile" (click)="userDropdownOpen=false"
+            class="block px-4 py-2 text-sm hover:bg-[var(--surface-hover)] transition-colors"
+            style="color: var(--ink-secondary);">Settings</a>
+          <a routerLink="/shopping-list" (click)="userDropdownOpen=false"
+            class="block px-4 py-2 text-sm hover:bg-[var(--surface-hover)] transition-colors"
+            style="color: var(--ink-secondary);">Shopping List</a>
+        </div>
+      </div>
+
+      <!-- Settings Toggle -->
+      <button (click)="settingsOpen = !settingsOpen" class="btn-ghost" title="Settings" style="padding: 0.5rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      </button>
+
+      <fb-settings-panel *ngIf="settingsOpen" (close)="settingsOpen = false"></fb-settings-panel>
+    </div>
+
+    <!-- Mobile Hamburger -->
+    <button class="md:hidden p-2 rounded-lg transition-colors" style="color: var(--ink-secondary);"
+      (click)="mobileOpen = !mobileOpen" aria-label="Toggle menu">
+      <svg *ngIf="!mobileOpen" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" x2="20" y1="6" y2="6" />
+        <line x1="4" x2="20" y1="12" y2="12" />
+        <line x1="4" x2="20" y1="18" y2="18" />
+      </svg>
+      <svg *ngIf="mobileOpen" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 6 6 18" />
+        <path d="m6 6 12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile Drawer -->
+  <div *ngIf="mobileOpen" class="md:hidden absolute left-0 right-0 px-4 py-6 space-y-2 animate-slide-up"
+    style="top: var(--public-nav-height); background: var(--surface-base); border-bottom: 1px solid var(--border-subtle);">
+    <a routerLink="/" (click)="mobileOpen=false" class="nav-link block">Home</a>
+
+    <ng-container *ngIf="authService.token()">
+      <a routerLink="/dashboard" (click)="mobileOpen=false" class="nav-link block">Dashboard</a>
+      <a routerLink="/shopping-list" (click)="mobileOpen=false" class="nav-link block">Shopping List</a>
+    </ng-container>
+
+    <div class="nav-mobile-group">
+      <p class="nav-mobile-group__title">Product</p>
+      <a *ngFor="let item of productLinks" [routerLink]="item.link" (click)="mobileOpen=false" class="nav-link block">
+        {{ item.label }}
+      </a>
+    </div>
+
+    <div class="nav-mobile-group">
+      <p class="nav-mobile-group__title">Resources</p>
+      <a *ngFor="let item of resourceLinks" [routerLink]="item.link" (click)="mobileOpen=false" class="nav-link block">
+        {{ item.label }}
+      </a>
+    </div>
+
+    <a routerLink="/about" (click)="mobileOpen=false" class="nav-link block">About Us</a>
+    <a routerLink="/contact" (click)="mobileOpen=false" class="nav-link block">Contact Us</a>
+
+    <hr style="border-color: var(--border-subtle);" />
+
+    <ng-container *ngIf="!authService.token()">
+      <a routerLink="/auth/login" (click)="mobileOpen=false" class="btn-outline block text-center w-full">Log in</a>
+      <a routerLink="/auth/register" (click)="mobileOpen=false" class="btn-green block text-center w-full mt-2">Get
+        Started</a>
+    </ng-container>
+
+    <ng-container *ngIf="authService.token()">
+      <a routerLink="/profile" (click)="mobileOpen=false" class="nav-link block">Settings</a>
+      <button (click)="logout()" class="btn-outline w-full mt-2"
+        style="color: var(--color-error); border-color: var(--color-error);">Sign Out</button>
+    </ng-container>
+  </div>
+</nav>

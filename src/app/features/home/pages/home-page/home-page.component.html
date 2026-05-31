@@ -1,0 +1,548 @@
+<!-- ═══════════════════════════════════════════════════════════
+     HERO SECTION — Warm, Human, Visual
+     ═══════════════════════════════════════════════════════════ -->
+<section class="hero-section relative overflow-hidden" style="background: var(--surface-base); padding: 9rem 0 6rem;">
+    <div class="dot-grid-hero" aria-hidden="true"></div>
+    <fb-particle-field density="normal" variant="light" />
+
+    <div class="relative z-10" style="max-width: 1280px; margin: 0 auto; padding: 0 2rem;">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+            <!-- Text Content -->
+            <div style="max-width: 560px;">
+                <span class="hero-overline type-overline"
+                    style="display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+                    <span
+                        style="width: 8px; height: 8px; border-radius: 50%; background: var(--green-500); display: inline-block;"></span>
+                    AI-Powered Nutrition
+                </span>
+
+                <h1 class="hero-headline type-display-xl" style="margin-bottom: 1.5rem;">
+                    Healthy eating<br>
+                    <span style="color: var(--green-600);">shouldn't be hard.</span>
+                </h1>
+
+                <p class="hero-body"
+                    style="font-family: var(--font-sans); font-size: 1.125rem; line-height: 1.8; color: var(--ink-secondary); margin-bottom: 2.5rem;">
+                    We get it — between work, life, and everything else, planning meals feels like a chore.
+                    FoodBot takes the mental load off. Just tell us what you like, and we'll handle the rest:
+                    <strong style="color: var(--ink-primary);">recipes, meal plans, shopping lists, and nutrition
+                        tracking.</strong>
+                </p>
+
+                <div class="hero-ctas flex flex-wrap gap-4" style="margin-bottom: 2rem;">
+                    <a [routerLink]="primaryHeroCta.link" class="btn-green btn-lg wiggle-hover"
+                        [style.font-size]="authService.token() ? '0' : null">
+                        <span *ngIf="authService.token()" style="font-size: 1rem;">{{primaryHeroCta.label}}</span>
+                        Start for Free — It's Easy
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14" />
+                            <path d="m12 5 7 7-7 7" />
+                        </svg>
+                    </a>
+                    <a [routerLink]="recipeChatCta.link" class="btn-outline btn-lg">
+                        {{recipeChatCta.label}}
+                    </a>
+                </div>
+
+                <div class="hero-proof flex items-center gap-3" style="flex-wrap: wrap;">
+                    <div class="flex items-center gap-0.5" style="color: #F59E0B;">
+                        <svg *ngFor="let s of [1,2,3,4,5]" xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                            viewBox="0 0 24 24" fill="currentColor">
+                            <polygon
+                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                    </div>
+                    <span class="type-body-s">Loved by <strong style="color: var(--ink-primary);">10,000+</strong>
+                        people who
+                        actually enjoy eating healthy now</span>
+                </div>
+
+                <div class="hero-mini-stats" aria-label="FoodBot traction">
+                    <div *ngFor="let stat of [
+                        {value: '10k+', label: 'happy users'},
+                        {value: '48k+', label: 'meals planned'},
+                        {value: '12k+', label: 'AI recipes'},
+                        {value: '4.9', label: 'rating'}
+                    ]" class="hero-mini-stat">
+                        <strong>{{stat.value}}</strong>
+                        <span>{{stat.label}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Visual — Stacked Image + Floating Cards -->
+            <div class="hero-visual relative hidden lg:block" style="min-height: 500px;">
+                <!-- Main food image -->
+                <div class="float-soft" style="position: relative; z-index: 1;">
+                    <img src="assets/images/hero-bowl.png" alt="Colourful healthy meal bowl"
+                        style="width: 100%; max-width: 480px; border-radius: 2rem; box-shadow: 0 24px 64px rgba(0,0,0,0.12); display: block; margin-left: auto;">
+                </div>
+
+                <!-- Floating stat bubbles -->
+                <div class="card-stat animate-bounce-slow"
+                    style="position: absolute; bottom: 2rem; left: 0; z-index: 3;">
+                    <div class="flex items-center gap-2">
+                        <span style="font-size: 1.5rem;">🥑</span>
+                        <div>
+                            <p class="type-overline" style="margin-bottom: 0;">Today's Protein</p>
+                            <p style="font-size: 1.25rem; font-weight: 800; color: var(--ink-primary);">120g <span
+                                    class="tag-green tag" style="font-size: 0.5rem;">✓ On Track</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-stat"
+                    style="position: absolute; top: 0; right: 0; z-index: 3; animation: float-soft 6s ease-in-out 1s infinite;">
+                    <div class="flex items-center gap-2">
+                        <span style="font-size: 1.5rem;">🔥</span>
+                        <div>
+                            <p class="type-overline" style="margin-bottom: 0;">Calories</p>
+                            <p style="font-size: 1.25rem; font-weight: 800; color: var(--ink-primary);">1,840 <span
+                                    class="type-body-s">kcal</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SOCIAL PROOF STATS
+     ═══════════════════════════════════════════════════════════ -->
+<section *ngIf="false"
+    style="background: var(--surface-base); padding: 4rem 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 2rem;">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div *ngFor="let stat of [
+                {value: 10000, label: 'Happy Users', suffix: '+', icon: '👥'},
+                {value: 48000, label: 'Meals Planned', suffix: '+', icon: '🍽️'},
+                {value: 12000, label: 'AI Recipes Generated', suffix: '+', icon: '🤖'},
+                {value: 4.9, label: 'App Store Rating', suffix: '★', decimals: 1, icon: '⭐'}
+            ]" fbReveal="up" class="card-stat" style="padding: 1.5rem;">
+                <span style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem;">{{stat.icon}}</span>
+                <p style="font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: var(--ink-primary);"
+                    [fbCountUp]="stat.value" [countSuffix]="stat.suffix" [countDecimals]="stat.decimals || 0">0</p>
+                <p class="type-body-s" style="margin-top: 0.25rem;">{{stat.label}}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     "WHAT YOU ACTUALLY GET" — Features with Image Panels
+     ═══════════════════════════════════════════════════════════ -->
+<section style="background: var(--surface-base); padding: 7rem 0;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 2rem;">
+        <div fbReveal="up" class="text-center" style="max-width: 640px; margin: 0 auto 4rem;">
+            <span class="type-overline" style="display: block; margin-bottom: 1rem;">What You Get</span>
+            <h2 class="type-heading">Six tools. One app.<br>Zero overwhelm.</h2>
+            <p class="type-body" style="margin-top: 1rem;">We didn't build a complicated nutrition platform.
+                We built the kitchen sidekick you actually want to use.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" fbStagger [staggerStart]="100">
+            <div *ngFor="let f of features" fbReveal="up" class="card card-hover group" style="padding: 2rem;">
+                <div class="feature-icon-wrap w-14 h-14 rounded-2xl flex items-center justify-center text-2xl cursor-default"
+                    style="background: var(--green-50); margin-bottom: 1.25rem;">{{f.icon}}</div>
+                <h3 class="type-title" style="margin-bottom: 0.5rem;">{{f.title}}</h3>
+                <p class="type-body-s" style="line-height: 1.7;">{{f.desc}}</p>
+                <div style="margin-top: 1.25rem;">
+                    <a [routerLink]="f.link"
+                        style="color: var(--green-600); font-size: 0.875rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.375rem; transition: gap 200ms var(--ease-snap);"
+                        class="group-hover:gap-2">
+                        Try it now
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                            style="transition: transform 200ms var(--ease-snap);" class="group-hover:translate-x-1">
+                            <path d="M5 12h14" />
+                            <path d="m12 5 7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     LIFESTYLE SPLIT — Image + Text (Warm & Human)
+     ═══════════════════════════════════════════════════════════ -->
+<section style="background: var(--surface-subtle); padding: 7rem 0;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 2rem;">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <!-- Image -->
+            <div fbReveal="left" style="position: relative;">
+                <img src="assets/images/couple-cooking.png" alt="Couple cooking together"
+                    style="width: 100%; border-radius: 1.5rem; box-shadow: 0 16px 48px rgba(0,0,0,0.1);">
+                <!-- Floating badge -->
+                <div class="card-glass animate-bounce-slow"
+                    style="position: absolute; bottom: -1rem; right: -1rem; padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.25rem;">❤️</span>
+                    <span style="font-weight: 700; font-size: 0.875rem; color: var(--ink-primary);">Cooking is fun
+                        again</span>
+                </div>
+            </div>
+
+            <!-- Text -->
+            <div fbReveal="right" class="space-y-6">
+                <span class="type-overline">Why People Love FoodBot</span>
+                <h2 class="type-heading">
+                    It's not just an app.<br>
+                    It's <em style="font-style: normal; color: var(--green-600);">your personal kitchen assistant.</em>
+                </h2>
+                <p class="type-body" style="font-size: 1.0625rem; line-height: 1.8;">
+                    Imagine opening your phone on Sunday evening and — instead of the usual "What should we eat this
+                    week?" panic — you already have a full plan waiting.
+                    Meals your family actually likes. A shopping list ready to go. Nutrition goals quietly ticking along
+                    in the background.
+                </p>
+                <p class="type-body" style="font-size: 1.0625rem; line-height: 1.8;">
+                    That's what FoodBot does. No complicated setup, no calorie-counting guilt trips.
+                    Just smart tools that fit into your real life.
+                </p>
+                <div style="padding-top: 0.5rem;">
+                    <a [routerLink]="mealPlanCta.link" class="btn-green">{{mealPlanCta.label}}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     WHO IT'S FOR
+     ═══════════════════════════════════════════════════════════ -->
+<section style="background: var(--surface-base); padding: 7rem 0;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 2rem;">
+        <div fbReveal="up" class="text-center" style="max-width: 640px; margin: 0 auto 4rem;">
+            <span class="type-overline" style="display: block; margin-bottom: 1rem;">Made for Real People</span>
+            <h2 class="type-heading">Whether you're a gym rat or a tired parent —<br>we've got you.</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" fbStagger>
+            <div *ngFor="let w of whoCards" fbReveal="scale-up" class="card who-card"
+                style="padding: 2rem; text-align: center;">
+                <div style="font-size: 2.5rem; margin-bottom: 1rem; user-select: none;">{{w.emoji}}</div>
+                <h3 class="type-title" style="margin-bottom: 0.5rem;">{{w.title}}</h3>
+                <p class="type-body-s" style="line-height: 1.65;">{{w.desc}}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOOD GALLERY — Full-Width Image Strip
+     ═══════════════════════════════════════════════════════════ -->
+<section style="background: var(--surface-subtle); padding: 5rem 0; overflow: hidden;">
+    <div fbReveal="up" class="text-center" style="max-width: 640px; margin: 0 auto 3rem; padding: 0 2rem;">
+        <span class="type-overline" style="display: block; margin-bottom: 1rem;">Food for Thought</span>
+        <h2 class="type-heading">Real meals. Real recipes. Real delicious.</h2>
+        <p class="type-body" style="margin-top: 0.75rem;">Every one of these was generated or found through FoodBot.</p>
+    </div>
+
+    <div
+        style="display: flex; gap: 1.25rem; padding: 0 2rem; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
+        <div *ngFor="let img of [
+            {src: 'assets/images/hero-bowl.png', label: 'Power Bowl'},
+            {src: 'assets/images/african-dish.png', label: 'Nigerian Jollof'},
+            {src: 'assets/images/breakfast-spread.png', label: 'Sunday Brunch'},
+            {src: 'assets/images/meal-prep.png', label: 'Weekly Meal Prep'},
+            {src: 'assets/images/hero-bowl.png', label: 'Green Goodness'},
+            {src: 'assets/images/african-dish.png', label: 'West African Feast'}
+        ]" class="food-gallery-item"
+            style="flex: 0 0 auto; scroll-snap-align: start; position: relative; border-radius: 1.25rem; overflow: hidden; width: 280px; height: 280px; cursor: pointer;">
+            <img [src]="img.src" [alt]="img.label"
+                style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            <div
+                style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.65), transparent); padding: 1.5rem 1rem 0.75rem;">
+                <p style="color: white; font-weight: 700; font-size: 0.875rem;">{{img.label}}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HOW IT WORKS — 3 Steps
+     ═══════════════════════════════════════════════════════════ -->
+<section style="background: var(--surface-base); padding: 7rem 0;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 2rem;">
+        <div fbReveal="up" class="text-center" style="max-width: 640px; margin: 0 auto 4rem;">
+            <span class="type-overline" style="display: block; margin-bottom: 1rem;">Getting Started</span>
+            <h2 class="type-heading">Three steps to eating better.<br>Seriously, that's it.</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8" fbStagger>
+            <div *ngFor="let step of [
+                {n:'01', icon:'📋', title:'Tell us about you', desc:'Your goals, your allergies, your taste. FoodBot listens. Whether you\'re vegan, keto, or just trying to eat more veggies — we customise everything.'},
+                {n:'02', icon:'🤖', title:'AI does the heavy lifting', desc:'Our AI chef builds you a personalised weekly meal plan, generates a shopping list, and even suggests recipes based on what\'s already in your fridge.'},
+                {n:'03', icon:'🥗', title:'Cook, eat, enjoy', desc:'Follow the simple recipes, log your meals with one tap, and watch your nutrition goals come to life. No spreadsheets, no guilt — just good food.'}
+            ]" fbReveal="up" class="card relative text-center" style="padding: 2.5rem 2rem;">
+                <span
+                    style="font-family: var(--font-display); font-size: 5rem; font-weight: 900; color: var(--border-faint); position: absolute; top: 0.5rem; right: 1.25rem; user-select: none; line-height: 1;">{{step.n}}</span>
+                <div class="feature-icon-wrap w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto"
+                    style="background: var(--green-50); margin-bottom: 1.25rem;">
+                    {{step.icon}}
+                </div>
+                <h3 class="type-title" style="margin-bottom: 0.75rem;">{{step.title}}</h3>
+                <p class="type-body-s" style="line-height: 1.7;">{{step.desc}}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     AFRICAN CUISINE SPOTLIGHT
+     ═══════════════════════════════════════════════════════════ -->
+<section style="background: var(--surface-subtle); padding: 7rem 0;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 2rem;">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <!-- Text first on this side -->
+            <div fbReveal="left" class="space-y-6 order-2 lg:order-1">
+                <span class="type-overline">African Cuisine Spotlight 🌍</span>
+                <h2 class="type-heading">
+                    Jollof? Egusi? Doro Wat?<br>
+                    <span style="color: var(--green-600);">We speak your food language.</span>
+                </h2>
+                <p class="type-body" style="font-size: 1.0625rem; line-height: 1.8;">
+                    FoodBot isn't just another Western-centric meal planning app. Our AI chef specialises in authentic
+                    African cuisine —
+                    from Nigerian jollof rice to Ethiopian injera spreads. Tell it what ingredients you have, and it'll
+                    create a traditional recipe with full nutritional breakdown.
+                </p>
+                <div class="flex flex-wrap gap-2" style="padding-top: 0.5rem;">
+                    <span class="tag">🇳🇬 Nigerian</span>
+                    <span class="tag">🇬🇭 Ghanaian</span>
+                    <span class="tag">🇪🇹 Ethiopian</span>
+                    <span class="tag">🇸🇳 Senegalese</span>
+                    <span class="tag">🇰🇪 Kenyan</span>
+                    <span class="tag">🇿🇦 South African</span>
+                </div>
+                <a [routerLink]="africanChefCta.link" class="btn-dark" style="display: inline-flex;">
+                    {{africanChefCta.label}}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Image -->
+            <div fbReveal="right" class="relative order-1 lg:order-2">
+                <img src="assets/images/african-dish.png" alt="Nigerian Jollof rice with plantain"
+                    style="width: 100%; border-radius: 1.5rem; box-shadow: 0 16px 48px rgba(0,0,0,0.1);">
+                <div class="card-glass"
+                    style="position: absolute; top: -0.75rem; left: -0.75rem; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.25rem;">👨🏿‍🍳</span>
+                    <span style="font-weight: 700; font-size: 0.8125rem; color: var(--ink-primary);">AI-generated
+                        recipe</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TESTIMONIALS — Real People, Real Stories
+     ═══════════════════════════════════════════════════════════ -->
+<section style="background: var(--surface-base); padding: 7rem 0;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 2rem;">
+        <div fbReveal="up" class="text-center" style="max-width: 640px; margin: 0 auto 4rem;">
+            <span class="type-overline" style="display: block; margin-bottom: 1rem;">Real Humans, Real Results</span>
+            <h2 class="type-heading">Don't take our word for it.</h2>
+            <p class="type-body" style="margin-top: 0.75rem;">These are real stories from real FoodBot users.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" fbStagger>
+            <div *ngFor="let t of testimonials; let i = index" fbReveal="up" class="card testimonial-card"
+                style="padding: 2rem;">
+                <!-- Stars -->
+                <div class="flex items-center gap-0.5" style="color: #F59E0B; margin-bottom: 1rem;">
+                    <svg *ngFor="let s of [1,2,3,4,5]" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                        viewBox="0 0 24 24" fill="currentColor">
+                        <polygon
+                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                </div>
+
+                <p
+                    style="font-size: 0.875rem; line-height: 1.7; color: var(--ink-secondary); margin-bottom: 1.25rem; font-style: italic;">
+                    "{{t.quote}}"
+                </p>
+
+                <div class="flex items-center gap-3"
+                    style="border-top: 1px solid var(--border-faint); padding-top: 1rem;">
+                    <div
+                        style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--green-50); display: flex; align-items: center; justify-content: center; font-size: 1.125rem;">
+                        {{t.avatar}}
+                    </div>
+                    <div>
+                        <p style="font-weight: 700; font-size: 0.875rem; color: var(--ink-primary);">{{t.name}}</p>
+                        <p class="type-body-s" style="font-size: 0.75rem;">{{t.role}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     LIFESTYLE IMAGE + MEAL PREP CTA
+     ═══════════════════════════════════════════════════════════ -->
+<section style="background: var(--surface-subtle); padding: 7rem 0;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 2rem;">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div fbReveal="left" style="position: relative;">
+                <img src="assets/images/meal-prep.png" alt="Weekly meal prep containers"
+                    style="width: 100%; border-radius: 1.5rem; box-shadow: 0 16px 48px rgba(0,0,0,0.1);">
+                <div class="card-glass animate-bounce-slow"
+                    style="position: absolute; bottom: -0.5rem; left: -0.5rem; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1rem;">📦</span>
+                    <span style="font-weight: 700; font-size: 0.8125rem; color: var(--ink-primary);">5 days prepped in 2
+                        hrs</span>
+                </div>
+            </div>
+            <div fbReveal="right" class="space-y-6">
+                <span class="type-overline">Meal Prep Made Easy</span>
+                <h2 class="type-heading">
+                    Sunday prep, sorted.<br>
+                    <span style="color: var(--green-600);">Weeknight stress, gone.</span>
+                </h2>
+                <p class="type-body" style="font-size: 1.0625rem; line-height: 1.8;">
+                    FoodBot doesn't just plan your meals — it thinks about your whole week. Which meals can share
+                    ingredients?
+                    What can be batch-cooked on Sunday? How do you avoid food waste? We've thought of everything so you
+                    don't have to.
+                </p>
+                <ul style="list-style: none; padding: 0;" class="space-y-3">
+                    <li *ngFor="let item of ['Auto-generated shopping lists', 'Batch cooking suggestions', 'Leftover recipe ideas', 'Zero food waste tracking']"
+                        class="flex items-center gap-3 type-body" style="font-size: 0.9375rem;">
+                        <span
+                            style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--green-50); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                                fill="none" stroke="var(--green-600)" stroke-width="3" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                        </span>
+                        {{item}}
+                    </li>
+                </ul>
+                <a routerLink="/meal-planner" class="btn-green" style="display: inline-flex;">Plan My Week</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FINAL CTA — Warm, Personal
+     ═══════════════════════════════════════════════════════════ -->
+<section class="mobile-coming-section" style="background: linear-gradient(180deg, var(--surface-base) 0%, var(--surface-subtle) 100%); padding: 7rem 0; overflow: hidden;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 2rem;">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div fbReveal="left" class="space-y-6">
+                <span class="type-overline">Mobile Apps Coming Soon</span>
+                <h2 class="type-heading">
+                    FoodBot for Android and iOS is on the way.
+                </h2>
+                <p class="type-body" style="font-size: 1.0625rem; line-height: 1.8;">
+                    Plan meals, chat with your AI chef, check your shopping list, and track nutrition from the app in
+                    your pocket. We are polishing the mobile experience now.
+                </p>
+
+                <div class="mobile-platforms" aria-label="Mobile platforms">
+                    <div class="platform-pill">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" aria-hidden="true">
+                            <path d="M7 8h10" />
+                            <path d="M7 8v8a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3V8" />
+                            <path d="m8 4 2 3" />
+                            <path d="m16 4-2 3" />
+                            <path d="M5 10v5" />
+                            <path d="M19 10v5" />
+                        </svg>
+                        <span>Android</span>
+                    </div>
+                    <div class="platform-pill">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" aria-hidden="true">
+                            <rect x="7" y="2" width="10" height="20" rx="2.5" />
+                            <path d="M11 18h2" />
+                        </svg>
+                        <span>iOS</span>
+                    </div>
+                </div>
+
+                <p class="type-body-s">Built for quick meal decisions, grocery runs, and everyday nutrition check-ins.</p>
+            </div>
+
+            <div fbReveal="right" class="mobile-mockup-stage">
+                <img src="assets/images/mobile-app-mockups.png"
+                    alt="FoodBot Android and iOS app mockups"
+                    class="mobile-mockup-image">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="relative overflow-hidden" style="background: var(--surface-base); padding: 7rem 0;">
+    <div class="dot-grid-section" aria-hidden="true"></div>
+    <fb-particle-field density="sparse" variant="light" />
+
+    <div class="relative z-10 text-center" style="max-width: 640px; margin: 0 auto; padding: 0 2rem;">
+        <div fbReveal="up" class="space-y-6">
+            <span class="type-overline" style="display: block;">Ready to start?</span>
+            <h2 class="type-display" style="line-height: 1.02;">
+                Your kitchen<br>deserves a<br>
+                <span style="color: var(--green-600);">sidekick.</span>
+            </h2>
+            <p class="type-body" style="font-size: 1.0625rem; line-height: 1.8;">
+                Join thousands of people who've stopped stressing about food and started enjoying it again.
+                FoodBot is free forever — and yes, that includes the AI chef. 🍳
+            </p>
+            <div class="flex justify-center gap-4 flex-wrap" style="padding-top: 0.5rem;">
+                <a [routerLink]="finalCta.link" class="btn-green btn-xl wiggle-hover">
+                    {{finalCta.label}}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+            <p class="type-body-s" style="margin-top: 1rem;">No credit card · No spam · Cancel anytime</p>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HAPPY USER IMAGE STRIP
+     ═══════════════════════════════════════════════════════════ -->
+<section style="background: var(--surface-subtle); padding: 4rem 0;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 2rem;">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <div fbReveal="left" class="space-y-2 text-center md:text-left">
+                <p
+                    style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--ink-primary);">
+                    "FoodBot changed how I think about food."
+                </p>
+                <p class="type-body-s">— Amara, Lagos 🇳🇬</p>
+            </div>
+            <div fbReveal="up">
+                <img src="assets/images/happy-user.png" alt="Happy FoodBot user"
+                    style="width: 100%; max-width: 320px; border-radius: 1.5rem; box-shadow: 0 12px 32px rgba(0,0,0,0.08); display: block; margin: 0 auto;">
+            </div>
+            <div fbReveal="right" class="space-y-2 text-center md:text-right">
+                <p
+                    style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--ink-primary);">
+                    "Finally, an app that understands my diet."
+                </p>
+                <p class="type-body-s">— James, London 🇬🇧</p>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,248 @@
+<section class="docs-page">
+    <div class="docs-page__hero">
+        <div class="docs-page__hero-copy">
+            <p class="type-overline">Developers</p>
+            <h1 class="type-display">Custom API docs for approved FoodBot clients.</h1>
+            <p class="type-body docs-page__lede">
+                Integrate recipes, meal planning, nutrition tracking, and shopping workflows into your own product.
+                Access is private by design: we review the use case with you, then issue an API key for approved client-facing endpoints.
+            </p>
+            <p class="type-body-s">
+                FoodBot is a Scalefort innovation. Product access lives at
+                <a href="https://foodbot.ng" target="_blank" rel="noreferrer" style="color: var(--green-600); font-weight: 700; text-decoration: none;">foodbot.ng</a>,
+                while company and partnership context lives at
+                <a href="https://scalefort.africa" target="_blank" rel="noreferrer" style="color: var(--green-600); font-weight: 700; text-decoration: none;">scalefort.africa</a>.
+            </p>
+
+            <div class="docs-page__hero-actions">
+                <a class="btn-green" href="mailto:api@foodbot.io?subject=FoodBot API access request">Request API Access</a>
+                <button type="button" class="btn-outline" (click)="copyText(baseUrl, 'Base URL')">Copy Base URL</button>
+            </div>
+
+            <div class="docs-page__hero-meta">
+                <div class="docs-metric">
+                    <span class="docs-metric__label">Version</span>
+                    <strong>v1</strong>
+                </div>
+                <div class="docs-metric">
+                    <span class="docs-metric__label">Auth</span>
+                    <strong>X-API-Key</strong>
+                </div>
+                <div class="docs-metric">
+                    <span class="docs-metric__label">Base URL</span>
+                    <strong>{{ baseUrl }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <aside class="docs-page__intro-card card-glass">
+            <p class="type-overline">How access works</p>
+            <ol class="docs-steps">
+                <li *ngFor="let step of authSteps">{{ step }}</li>
+            </ol>
+        </aside>
+    </div>
+
+    <div class="docs-page__highlights">
+        <article *ngFor="let item of highlights" class="card docs-highlight">
+            <p class="type-overline">{{ item.title }}</p>
+            <p class="type-body">{{ item.description }}</p>
+        </article>
+    </div>
+
+    <div class="docs-layout">
+        <aside class="docs-sidebar card-glass">
+            <p class="type-overline">In this page</p>
+            <nav class="docs-sidebar__nav">
+                <a
+                    *ngFor="let item of navItems()"
+                    [routerLink]="['/api-docs']"
+                    [fragment]="item.id"
+                    (click)="goToSection(item.id, $event)">
+                    {{ item.label }}
+                </a>
+            </nav>
+        </aside>
+
+        <div class="docs-content">
+            <section id="overview" class="docs-panel card">
+                <div class="docs-panel__header">
+                    <div>
+                        <p class="type-overline">Overview</p>
+                        <h2 class="type-title">Built for partner and client integrations</h2>
+                    </div>
+                    <button type="button" class="btn-ghost" (click)="copyText(baseUrl, 'Base URL')">Copy base URL</button>
+                </div>
+
+                <div class="docs-grid docs-grid--two">
+                    <div class="card-inset">
+                        <p class="docs-kicker">What you send</p>
+                        <code class="docs-inline-code">X-API-Key: fb_live_your_key_here</code>
+                    </div>
+                    <div class="card-inset">
+                        <p class="docs-kicker">Response format</p>
+                        <code class="docs-inline-code">{{ '{ success, data, meta, errors }' }}</code>
+                    </div>
+                </div>
+            </section>
+
+            <section id="authentication" class="docs-panel card">
+                <div class="docs-panel__header">
+                    <div>
+                        <p class="type-overline">Authentication</p>
+                        <h2 class="type-title">Use issued API keys for approved client endpoints</h2>
+                    </div>
+                </div>
+
+                <div class="docs-grid docs-grid--two">
+                    <div class="card-inset">
+                        <p class="docs-kicker">Header</p>
+                        <pre class="docs-pre"><code>X-API-Key: fb_live_your_key_here</code></pre>
+                    </div>
+                    <div class="card-inset">
+                        <p class="docs-kicker">Lifecycle</p>
+                        <p class="type-body-s">
+                            Keys are generated by the Scalefort team after FoodBot onboarding. We scope access manually, and production access is only granted after review.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section *ngFor="let section of sections; trackBy: trackSection" [id]="section.id" class="docs-section">
+                <div class="docs-section__intro">
+                    <p class="type-overline">{{ section.eyebrow }}</p>
+                    <h2 class="type-title">{{ section.title }}</h2>
+                    <p class="type-body">{{ section.description }}</p>
+                </div>
+
+                <article *ngFor="let endpoint of section.endpoints; trackBy: trackEndpoint" class="docs-endpoint card">
+                    <div class="docs-endpoint__topline">
+                        <span class="docs-method" [attr.data-method]="endpoint.method">{{ endpoint.method }}</span>
+                        <code class="docs-path">{{ endpoint.path }}</code>
+                    </div>
+
+                    <div class="docs-panel__header">
+                        <div>
+                            <h3 class="type-title">{{ endpoint.title }}</h3>
+                            <p class="type-body-s">{{ endpoint.summary }}</p>
+                        </div>
+                        <button
+                            type="button"
+                            class="btn-ghost"
+                            (click)="copyText(baseUrl + endpoint.path, endpoint.title + ' URL')">
+                            Copy URL
+                        </button>
+                    </div>
+
+                    <p class="type-body">{{ endpoint.description }}</p>
+
+                    <div class="docs-grid docs-grid--two">
+                        <div class="card-inset">
+                            <p class="docs-kicker">Authentication</p>
+                            <p class="type-body-s">{{ endpoint.auth }}</p>
+
+                            <ng-container *ngIf="endpoint.headers?.length">
+                                <p class="docs-kicker docs-kicker--spaced">Headers</p>
+                                <ul class="docs-field-list">
+                                    <li *ngFor="let field of endpoint.headers">
+                                        <strong>{{ field.name }}</strong>
+                                        <span>{{ field.type }}</span>
+                                        <p>{{ field.description }}</p>
+                                    </li>
+                                </ul>
+                            </ng-container>
+
+                            <ng-container *ngIf="endpoint.queryParams?.length">
+                                <p class="docs-kicker docs-kicker--spaced">Query params</p>
+                                <ul class="docs-field-list">
+                                    <li *ngFor="let field of endpoint.queryParams">
+                                        <strong>{{ field.name }}</strong>
+                                        <span>{{ field.type }}</span>
+                                        <p>{{ field.description }}</p>
+                                    </li>
+                                </ul>
+                            </ng-container>
+
+                            <ng-container *ngIf="endpoint.bodyFields?.length">
+                                <p class="docs-kicker docs-kicker--spaced">Body fields</p>
+                                <ul class="docs-field-list">
+                                    <li *ngFor="let field of endpoint.bodyFields">
+                                        <strong>{{ field.name }}</strong>
+                                        <span>{{ field.type }}</span>
+                                        <p>{{ field.description }}</p>
+                                    </li>
+                                </ul>
+                            </ng-container>
+                        </div>
+
+                        <div class="docs-samples card-inset">
+                            <div class="docs-samples__tabs">
+                                <button
+                                    *ngFor="let sample of endpoint.samples"
+                                    type="button"
+                                    class="docs-samples__tab"
+                                    [class.is-active]="currentSample(endpoint).label === sample.label"
+                                    (click)="selectSample(endpoint.id, sample.label)">
+                                    {{ sample.label }}
+                                </button>
+                            </div>
+
+                            <pre class="docs-pre"><code>{{ currentSample(endpoint).code }}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="docs-grid docs-grid--two">
+                        <div class="card-inset">
+                            <div class="docs-response-header">
+                                <p class="docs-kicker">Example response</p>
+                                <button type="button" class="btn-ghost" (click)="copyText(endpoint.responseExample, endpoint.title + ' response')">
+                                    Copy JSON
+                                </button>
+                            </div>
+                            <pre class="docs-pre"><code>{{ endpoint.responseExample }}</code></pre>
+                        </div>
+
+                        <div class="card-inset" *ngIf="endpoint.notes?.length">
+                            <p class="docs-kicker">Integration notes</p>
+                            <ul class="docs-note-list">
+                                <li *ngFor="let note of endpoint.notes">{{ note }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </article>
+            </section>
+
+            <section id="errors" class="docs-panel card">
+                <div class="docs-panel__header">
+                    <div>
+                        <p class="type-overline">Errors</p>
+                        <h2 class="type-title">Standard integration responses</h2>
+                    </div>
+                </div>
+
+                <div class="docs-error-grid">
+                    <article *ngFor="let error of errorRows" class="card-inset docs-error-card">
+                        <strong>{{ error.code }}</strong>
+                        <h3>{{ error.title }}</h3>
+                        <p>{{ error.description }}</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="docs-panel docs-cta card">
+                <div>
+                    <p class="type-overline">Need access?</p>
+                    <h2 class="type-title">Talk to us before you build.</h2>
+                    <p class="type-body">
+                        We review your use case, agree on the endpoint surface, then issue an API key for approved production access.
+                    </p>
+                </div>
+
+                <div class="docs-page__hero-actions">
+                    <a class="btn-green" routerLink="/contact">Speak with Scalefort</a>
+                    <a class="btn-outline" href="mailto:api@foodbot.io?subject=FoodBot API onboarding">Email the API team</a>
+                </div>
+            </section>
+        </div>
+    </div>
+</section>

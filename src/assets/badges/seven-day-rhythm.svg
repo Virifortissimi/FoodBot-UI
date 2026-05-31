@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">7-Day Rhythm badge</title>
+  <desc id="desc">A seven day calendar with a star on a violet medal.</desc>
+  <rect width="96" height="96" rx="24" fill="#ede9fe"/>
+  <circle cx="48" cy="48" r="34" fill="#7c3aed"/>
+  <rect x="27" y="29" width="42" height="38" rx="8" fill="#f8fafc"/>
+  <path d="M27 41h42" stroke="#5b21b6" stroke-width="4"/>
+  <path d="M37 26v8M59 26v8" stroke="#f8fafc" stroke-width="5" stroke-linecap="round"/>
+  <path d="M48 46l3 7 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1z" fill="#facc15"/>
+  <text x="48" y="38" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="800" fill="#5b21b6">7</text>
+</svg>

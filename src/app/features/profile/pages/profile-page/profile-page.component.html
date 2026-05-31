@@ -1,0 +1,243 @@
+<div style="min-height: 100vh; background: var(--surface-base); padding: 6rem 1rem 3rem;">
+    <div style="max-width: 48rem; margin: 0 auto;" class="space-y-8">
+
+        <header>
+            <p class="type-overline" style="margin-bottom: 0.5rem;">Account</p>
+            <h1 class="type-heading">My Profile</h1>
+            <p class="type-body-s" style="margin-top: 0.25rem;">Update your personal info, nutrition goals, and
+                preferences.</p>
+        </header>
+
+        <!-- Personal Info -->
+        <section class="card space-y-5">
+            <h2 class="type-title">Personal Information</h2>
+
+            <!-- Avatar -->
+            <div class="flex items-center gap-5">
+                <div
+                    style="width: 5rem; height: 5rem; border-radius: 1rem; background: var(--green-500); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; font-weight: 800; color: white; user-select: none;">
+                    {{profileForm.name ? profileForm.name[0].toUpperCase() : '?'}}
+                </div>
+                <div>
+                    <p style="font-size: 0.875rem; font-weight: 600; color: var(--ink-primary);">{{profileForm.name ||
+                        'Your Name'}}</p>
+                    <p class="type-body-s">{{profileForm.email}}</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="form-label">Full Name</label>
+                    <input [(ngModel)]="profileForm.name" type="text" id="profile-name" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Email</label>
+                    <input [(ngModel)]="profileForm.email" type="email" id="profile-email" disabled class="form-input"
+                        style="background: var(--surface-hover); color: var(--ink-placeholder); cursor: not-allowed;">
+                </div>
+            </div>
+        </section>
+
+        <!-- Nutrition Goals -->
+        <section class="card space-y-5">
+            <h2 class="type-title">Nutrition Goals</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="form-label">Calories</label>
+                    <div class="relative">
+                        <input [(ngModel)]="profileForm.goals.calories" type="number" id="goal-calories"
+                            class="form-input" style="padding-right: 3.5rem;">
+                        <span
+                            style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--ink-placeholder); font-size: 0.75rem;">kcal</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">Protein</label>
+                    <div class="relative">
+                        <input [(ngModel)]="profileForm.goals.protein" type="number" id="goal-protein"
+                            class="form-input" style="padding-right: 2.5rem;">
+                        <span
+                            style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--ink-placeholder); font-size: 0.75rem;">g</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">Carbs</label>
+                    <div class="relative">
+                        <input [(ngModel)]="profileForm.goals.carbs" type="number" id="goal-carbs" class="form-input"
+                            style="padding-right: 2.5rem;">
+                        <span
+                            style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--ink-placeholder); font-size: 0.75rem;">g</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">Fat</label>
+                    <div class="relative">
+                        <input [(ngModel)]="profileForm.goals.fat" type="number" id="goal-fat" class="form-input"
+                            style="padding-right: 2.5rem;">
+                        <span
+                            style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--ink-placeholder); font-size: 0.75rem;">g</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dietary Preferences -->
+        <section class="card space-y-4">
+            <div class="profile-section-header">
+                <h2 class="type-title">Dietary Preferences</h2>
+                <span>{{ selectedPreferenceCount }} / {{ maxDietaryPreferences }}</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <button *ngFor="let pref of dietaryOptions" (click)="togglePref(pref)"
+                    style="padding: 0.5rem 1rem; border-radius: 100px; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 150ms; border: 1.5px solid;"
+                    [style.background]="isSelected(pref) ? 'var(--green-500)' : 'var(--surface-base)'"
+                    [style.borderColor]="isSelected(pref) ? 'var(--green-500)' : 'var(--border-default)'"
+                    [style.color]="isSelected(pref) ? 'white' : 'var(--ink-secondary)'"
+                    [disabled]="isPreferenceDisabled(pref)"
+                    [class.preference-disabled]="isPreferenceDisabled(pref)">
+                    {{pref.label}} {{pref.emoji}}
+                </button>
+            </div>
+            <p *ngIf="selectedPreferenceCount >= maxDietaryPreferences" class="type-body-s">
+                You can select up to {{ maxDietaryPreferences }} preferences. Deselect one to choose another.
+            </p>
+        </section>
+
+        <!-- Subscription -->
+        <section class="card card-accent">
+            <div class="profile-subscription-row">
+                <div>
+                    <h2 class="type-title">Subscription</h2>
+                    <p class="type-body-s" style="margin-top: 0.25rem;">Current plan: <span
+                            style="font-weight: 600; color: var(--green-600);">{{ subscription.tier | titlecase }}</span></p>
+                    <p *ngIf="subscription.renewalDate" class="type-body-s" style="margin-top: 0.125rem;">
+                        Renews on {{ subscription.renewalDate | date:'mediumDate' }}
+                    </p>
+                </div>
+                <div class="profile-subscription-actions">
+                    <button
+                        *ngIf="canCancelSubscription"
+                        type="button"
+                        class="profile-cancel-subscription-btn"
+                        [disabled]="cancellingSubscription"
+                        (click)="openCancelSubscriptionModal()">
+                        {{ cancellingSubscription ? 'Processing...' : 'Cancel Subscription' }}
+                    </button>
+                    <a routerLink="/pricing" id="profile-upgrade-btn" class="btn-green btn-sm">
+                        {{ canCancelSubscription ? 'Manage Plan' : 'Upgrade Plan' }}
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Badges -->
+        <section class="card space-y-5">
+            <div class="profile-badges-header">
+                <div>
+                    <p class="type-overline">Achievements</p>
+                    <h2 class="type-title">Badges</h2>
+                </div>
+                <span class="profile-badges-count">{{ earnedBadges.length }} earned</span>
+            </div>
+
+            <div *ngIf="earnedBadges.length > 0" class="profile-badge-logo-grid" aria-label="Earned badges">
+                <button
+                    *ngFor="let badge of earnedBadges"
+                    type="button"
+                    class="profile-badge-logo earned"
+                    [class.selected]="selectedBadge?.key === badge.key"
+                    [attr.title]="badge.name"
+                    [attr.aria-label]="badge.name"
+                    (click)="selectBadge(badge)">
+                    <img [src]="getBadgeImageUrl(badge)" [alt]="badge.name">
+                </button>
+            </div>
+
+            <div class="profile-badge-logo-grid" aria-label="Locked badges">
+                <button
+                    *ngFor="let badge of lockedBadges"
+                    type="button"
+                    class="profile-badge-logo locked"
+                    [class.selected]="selectedBadge?.key === badge.key"
+                    [attr.title]="badge.name + ' - ' + badge.progressCurrent + ' of ' + badge.progressTarget"
+                    [attr.aria-label]="badge.name"
+                    (click)="selectBadge(badge)">
+                    <img [src]="getBadgeImageUrl(badge)" [alt]="badge.name">
+                    <span>{{ badge.progressCurrent }}/{{ badge.progressTarget }}</span>
+                </button>
+            </div>
+
+            <article *ngIf="selectedBadge" class="profile-badge-detail" [class.locked]="!selectedBadge.earned">
+                <img [src]="getBadgeImageUrl(selectedBadge)" [alt]="selectedBadge.name">
+                <div>
+                    <p class="type-overline">{{ selectedBadge.earned ? 'Earned badge' : 'Badge progress' }}</p>
+                    <h3>{{ selectedBadge.name }}</h3>
+                    <p>{{ selectedBadge.description }}</p>
+                    <span *ngIf="selectedBadge.earned && selectedBadge.earnedAt">Earned {{ selectedBadge.earnedAt | date:'MMM d' }}</span>
+                    <div>
+                        <div *ngIf="!selectedBadge.earned" class="profile-badge-progress">
+                            <span>{{ selectedBadge.progressCurrent }} / {{ selectedBadge.progressTarget }}</span>
+                            <div class="profile-badge-track">
+                                <div [style.width.%]="badgePercent(selectedBadge)"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <!-- Save Button -->
+        <div class="flex justify-end gap-3">
+            <button (click)="discardChanges()" class="btn-outline btn-sm">Discard</button>
+            <button (click)="saveProfile()" id="save-profile-btn" [disabled]="saving" class="btn-green btn-sm">
+                <span *ngIf="saving">Saving…</span>
+                <span *ngIf="!saving">Save Changes</span>
+            </button>
+        </div>
+
+        <!-- Success Toast -->
+        <div *ngIf="saveSuccess" class="card-glass animate-slide-up"
+            style="position: fixed; bottom: 1.5rem; right: 1.5rem; padding: 0.75rem 1.25rem; z-index: 50; display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 600; color: var(--green-600);">
+            ✓ Profile saved successfully!
+        </div>
+
+        <div *ngIf="showCancelModal" class="profile-modal-backdrop" (click)="closeCancelSubscriptionModal()">
+            <section class="profile-modal" role="dialog" aria-modal="true" aria-labelledby="cancel-subscription-title" (click)="$event.stopPropagation()">
+                <div class="profile-modal-header">
+                    <div>
+                        <p class="type-overline">Subscription</p>
+                        <h2 id="cancel-subscription-title" class="type-title">Cancel subscription?</h2>
+                    </div>
+                    <button
+                        type="button"
+                        class="profile-modal-close"
+                        aria-label="Close cancel subscription dialog"
+                        [disabled]="cancellingSubscription"
+                        (click)="closeCancelSubscriptionModal()">
+                        x
+                    </button>
+                </div>
+                <p class="type-body-s">
+                    Your account stays active until the current billing period ends, then moves back to Free.
+                </p>
+                <div class="profile-modal-actions">
+                    <button
+                        type="button"
+                        class="btn-outline btn-sm"
+                        [disabled]="cancellingSubscription"
+                        (click)="closeCancelSubscriptionModal()">
+                        Keep Plan
+                    </button>
+                    <button
+                        type="button"
+                        class="profile-danger-btn"
+                        [disabled]="cancellingSubscription"
+                        (click)="cancelSubscription()">
+                        {{ cancellingSubscription ? 'Processing...' : 'Cancel Subscription' }}
+                    </button>
+                </div>
+            </section>
+        </div>
+
+    </div>
+</div>

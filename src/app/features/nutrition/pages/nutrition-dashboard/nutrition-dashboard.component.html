@@ -1,0 +1,355 @@
+<div style="min-height: 100vh; background: var(--surface-base); padding: 6rem 1.5rem 3rem;">
+    <div style="max-width: 72rem; margin: 0 auto;" class="space-y-8">
+
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <p class="type-overline" style="margin-bottom: 0.5rem;">Health Tracking</p>
+                <h1 class="type-heading">Nutrition Tracker</h1>
+                <p class="type-body" style="margin-top: 0.25rem; font-size: 0.9375rem;">
+                    {{today | date:'EEEE, MMMM d'}} · Food, macros, and movement in one place.
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <button (click)="showWaterModal = true" class="btn-outline">
+                    Log Water
+                </button>
+                <button (click)="showExerciseModal = true" class="btn-outline">
+                    Log Exercise
+                </button>
+                <button (click)="showAddModal = true" id="add-food-btn" class="btn-green">
+                    Log Food
+                </button>
+            </div>
+        </header>
+
+        <div class="card" style="padding: 1.5rem;">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div>
+                    <p class="type-overline" style="margin-bottom: 0.375rem;">Strava Sync</p>
+                    <h2 class="type-title">
+                        {{ nutritionService.stravaStatus()?.isConnected ? 'Connected to Strava' : 'Connect Strava' }}
+                    </h2>
+                    <p class="type-body-s" style="margin-top: 0.25rem;">
+                        <ng-container *ngIf="nutritionService.stravaStatus()?.isConnected; else stravaDisconnected">
+                            {{ nutritionService.stravaStatus()?.athleteName || nutritionService.stravaStatus()?.athleteUsername || 'Strava athlete' }}
+                            <span *ngIf="nutritionService.stravaStatus()?.lastSyncedAt">
+                                · last synced {{ nutritionService.stravaStatus()?.lastSyncedAt | date:'MMM d, h:mm a' }}
+                            </span>
+                        </ng-container>
+                        <ng-template #stravaDisconnected>
+                            Import workouts from Strava into your dashboard exercise minutes.
+                        </ng-template>
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button *ngIf="!nutritionService.stravaStatus()?.isConnected" (click)="connectStrava()" class="btn-outline" [disabled]="stravaBusy">
+                        {{ stravaBusy ? 'Connecting...' : 'Connect Strava' }}
+                    </button>
+                    <ng-container *ngIf="nutritionService.stravaStatus()?.isConnected">
+                        <button (click)="importStrava(14)" class="btn-outline" [disabled]="stravaBusy">
+                            {{ stravaBusy ? 'Importing...' : 'Import Last 14 Days' }}
+                        </button>
+                        <button (click)="disconnectStrava()" class="btn-outline" [disabled]="stravaBusy">
+                            Disconnect
+                        </button>
+                    </ng-container>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="md:col-span-1 card card-accent flex flex-col items-center text-center" style="padding: 2rem;"
+                [class.goal-achieved]="goals.calories <= totals.calories">
+                <div style="width: 7rem; height: 7rem; position: relative; margin-bottom: 1rem;">
+                    <svg viewBox="0 0 36 36" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                        <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--border-faint)" stroke-width="2.5"></circle>
+                        <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--green-500)" stroke-width="2.5"
+                            stroke-dasharray="100" [attr.stroke-dashoffset]="100 - calorieProgress"
+                            stroke-linecap="round" style="transition: stroke-dashoffset 600ms ease;"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span style="font-size: 1.25rem; font-weight: 900; color: var(--ink-primary);">{{totals.calories}}</span>
+                        <span class="type-body-s" style="font-size: 0.625rem;">kcal</span>
+                    </div>
+                </div>
+                <p class="type-overline" style="margin-bottom: 0.25rem;">Calories</p>
+                <div style="width: 100%; background: var(--surface-subtle); border-radius: 100px; height: 6px; margin-top: 0.5rem; overflow: hidden;">
+                    <div style="height: 100%; background: var(--green-500); border-radius: 100px; transition: width 600ms ease;"
+                        [style.width]="calorieProgress + '%'"></div>
+                </div>
+                <p class="type-body-s" style="margin-top: 0.5rem;" *ngIf="goals.calories > totals.calories">
+                    <strong style="color: var(--ink-primary);">{{goals.calories - totals.calories}}</strong> kcal remaining
+                </p>
+                <p class="type-body-s" style="margin-top: 0.5rem; color: var(--green-600);" *ngIf="goals.calories <= totals.calories">
+                    Goal reached. Nice work.
+                </p>
+            </div>
+
+            <div *ngFor="let m of macros" class="card card-hover flex flex-col items-center text-center" style="padding: 1.5rem;">
+                <span style="font-size: 2rem; margin-bottom: 0.75rem;">{{m.icon}}</span>
+                <p class="type-overline" style="margin-bottom: 0.5rem;">{{m.label}}</p>
+                <div style="width: 5rem; height: 5rem; position: relative; margin-bottom: 0.75rem;">
+                    <svg viewBox="0 0 36 36" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                        <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--border-faint)" stroke-width="3"></circle>
+                        <circle cx="18" cy="18" r="15.9" fill="none" [attr.stroke]="m.color" stroke-width="3"
+                            stroke-dasharray="100"
+                            [attr.stroke-dashoffset]="m.goal > 0 ? 100 - (m.current / m.goal * 100) : 100"
+                            stroke-linecap="round" style="transition: stroke-dashoffset 600ms ease;"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span style="font-size: 0.875rem; font-weight: 800; color: var(--ink-primary);">
+                            {{m.goal > 0 ? (m.current / m.goal * 100 | number:'1.0-0') : 0}}%
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.375rem; font-weight: 700; color: var(--ink-primary);">{{m.current}}<span class="type-body-s">g</span></p>
+                <p class="type-body-s">of {{m.goal}}g goal</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="card card-accent" style="padding: 1.5rem;">
+                <p class="type-overline" style="margin-bottom: 0.5rem;">Water Intake</p>
+                <h3 class="type-title" style="font-size: 2rem;">{{ waterTotalLitres }} L</h3>
+                <p class="type-body-s" style="margin-top: 0.35rem;">{{ waterLogs.length }} water log{{ waterLogs.length === 1 ? '' : 's' }} today.</p>
+                <div class="flex flex-wrap gap-2" style="margin-top: 1rem;">
+                    <button type="button" class="btn-outline btn-sm" (click)="quickAddWater(250)">+250ml</button>
+                    <button type="button" class="btn-outline btn-sm" (click)="quickAddWater(500)">+500ml</button>
+                    <button type="button" class="btn-outline btn-sm" (click)="quickAddWater(750)">+750ml</button>
+                </div>
+            </div>
+            <div class="card card-accent" style="padding: 1.5rem;">
+                <p class="type-overline" style="margin-bottom: 0.5rem;">Exercise Minutes</p>
+                <h3 class="type-title" style="font-size: 2rem;">{{ exerciseTotals.durationMin }} min</h3>
+                <p class="type-body-s" style="margin-top: 0.35rem;">Logged from manual entries and Strava imports today.</p>
+            </div>
+            <div class="card" style="padding: 1.5rem;">
+                <p class="type-overline" style="margin-bottom: 0.5rem;">Calories Burned</p>
+                <h3 class="type-title" style="font-size: 2rem;">{{ exerciseTotals.caloriesBurned }}</h3>
+                <p class="type-body-s" style="margin-top: 0.35rem;">Shown when your workout source provides calorie burn data.</p>
+            </div>
+            <div class="card" style="padding: 1.5rem;">
+                <p class="type-overline" style="margin-bottom: 0.5rem;">Workout Count</p>
+                <h3 class="type-title" style="font-size: 2rem;">{{ exerciseLogs.length }}</h3>
+                <p class="type-body-s" style="margin-top: 0.35rem;">Every exercise record contributes to dashboard exercise minutes.</p>
+            </div>
+        </div>
+
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <div class="flex items-center justify-between" style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-faint);">
+                <div>
+                    <h2 class="type-title">Today's Water</h2>
+                    <p class="type-body-s" style="margin-top: 0.125rem;">{{waterLogs.length}} entries logged</p>
+                </div>
+                <button (click)="showWaterModal = true" class="btn-outline btn-sm">+ Add Water</button>
+            </div>
+            <div>
+                <div *ngFor="let entry of waterLogs" class="flex items-center gap-4 group"
+                    style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-faint);">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0" style="background: #dbeafe;">
+                        💧
+                    </div>
+                    <div class="flex-1">
+                        <p style="font-size: 0.875rem; font-weight: 600; color: var(--ink-primary);">Water</p>
+                        <p class="type-body-s">{{entry.time | date:'h:mm a'}} · manual</p>
+                    </div>
+                    <div class="text-right" style="min-width: 5rem;">
+                        <p style="font-size: 0.9375rem; font-weight: 700; color: var(--ink-primary);">{{entry.amountMl || 0}}</p>
+                        <p class="type-body-s">ml</p>
+                    </div>
+                    <button (click)="deleteEntry(entry.id); $event.stopPropagation()" style="color: var(--ink-placeholder); background: none; border: none; cursor: pointer; padding: 0.5rem;">
+                        ✕
+                    </button>
+                </div>
+                <div *ngIf="waterLogs.length === 0" class="flex flex-col items-center justify-center text-center" style="padding: 4rem 2rem;">
+                    <div style="width: 5rem; height: 5rem; background: var(--surface-subtle); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 1rem;">💧</div>
+                    <h3 class="type-title" style="margin-bottom: 0.25rem;">No water logged yet</h3>
+                    <p class="type-body-s" style="margin-bottom: 1.5rem;">Track your hydration throughout the day.</p>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <button (click)="quickAddWater(250)" class="btn-outline btn-sm">+250ml</button>
+                        <button (click)="quickAddWater(500)" class="btn-green btn-sm">+500ml</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <div class="flex items-center justify-between" style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-faint);">
+                <div>
+                    <h2 class="type-title">Today's Meals</h2>
+                    <p class="type-body-s" style="margin-top: 0.125rem;">{{mealLogs.length}} entries logged</p>
+                </div>
+                <button (click)="showAddModal = true" class="btn-outline btn-sm">+ Quick Add</button>
+            </div>
+            <div>
+                <div *ngFor="let entry of mealLogs; let i = index" class="flex items-center gap-4 group"
+                    style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-faint);">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
+                        [style.background]="i % 4 === 0 ? 'var(--green-50)' : i % 4 === 1 ? '#fef3c7' : i % 4 === 2 ? '#dbeafe' : '#fce7f3'">
+                        {{entry.type === 'Breakfast' ? '🌅' : entry.type === 'Lunch' ? '☀️' : entry.type === 'Dinner' ? '🌙' : '🍫'}}
+                    </div>
+                    <div class="flex-1">
+                        <p style="font-size: 0.875rem; font-weight: 600; color: var(--ink-primary);">{{entry.name}}</p>
+                        <p class="type-body-s">{{entry.type}} · {{entry.time | date:'h:mm a'}}</p>
+                    </div>
+                    <div class="text-right hidden sm:block">
+                        <div class="flex items-center gap-3">
+                            <div class="text-center"><p style="font-size: 0.625rem; color: var(--ink-placeholder); text-transform: uppercase;">PRO</p><p style="font-size: 0.8125rem; font-weight: 600; color: var(--ink-primary);">{{entry.protein}}g</p></div>
+                            <div class="text-center"><p style="font-size: 0.625rem; color: var(--ink-placeholder); text-transform: uppercase;">CARB</p><p style="font-size: 0.8125rem; font-weight: 600; color: var(--ink-primary);">{{entry.carbs}}g</p></div>
+                            <div class="text-center"><p style="font-size: 0.625rem; color: var(--ink-placeholder); text-transform: uppercase;">FAT</p><p style="font-size: 0.8125rem; font-weight: 600; color: var(--ink-primary);">{{entry.fat}}g</p></div>
+                        </div>
+                    </div>
+                    <div class="text-right" style="min-width: 5rem;">
+                        <p style="font-size: 0.9375rem; font-weight: 700; color: var(--ink-primary);">{{entry.calories}}</p>
+                        <p class="type-body-s">kcal</p>
+                    </div>
+                    <button (click)="deleteEntry(entry.id); $event.stopPropagation()" style="color: var(--ink-placeholder); background: none; border: none; cursor: pointer; padding: 0.5rem;">
+                        ✕
+                    </button>
+                </div>
+                <div *ngIf="mealLogs.length === 0" class="flex flex-col items-center justify-center text-center" style="padding: 4rem 2rem;">
+                    <div style="width: 5rem; height: 5rem; background: var(--surface-subtle); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 1rem;">🥗</div>
+                    <h3 class="type-title" style="margin-bottom: 0.25rem;">No meals logged yet</h3>
+                    <p class="type-body-s" style="margin-bottom: 1.5rem;">Start tracking to see your nutrition unfold through the day.</p>
+                    <button (click)="showAddModal = true" class="btn-green btn-sm">Log Your First Meal</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <div class="flex items-center justify-between" style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-faint);">
+                <div>
+                    <h2 class="type-title">Today's Exercise</h2>
+                    <p class="type-body-s" style="margin-top: 0.125rem;">{{exerciseLogs.length}} workouts logged</p>
+                </div>
+                <button (click)="showExerciseModal = true" class="btn-outline btn-sm">+ Add Workout</button>
+            </div>
+            <div>
+                <div *ngFor="let entry of exerciseLogs" class="flex items-center gap-4 group" style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-faint);">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0" style="background: #e0f2fe;">
+                        🏃
+                    </div>
+                    <div class="flex-1">
+                        <p style="font-size: 0.875rem; font-weight: 600; color: var(--ink-primary);">{{entry.name}}</p>
+                        <p class="type-body-s">{{entry.durationMin || 0}} min · {{entry.source || 'manual'}} · {{entry.time | date:'h:mm a'}}</p>
+                    </div>
+                    <div class="text-right" style="min-width: 6rem;">
+                        <p style="font-size: 0.9375rem; font-weight: 700; color: var(--ink-primary);">{{entry.caloriesBurned || 0}}</p>
+                        <p class="type-body-s">burned</p>
+                    </div>
+                    <button (click)="deleteEntry(entry.id); $event.stopPropagation()" style="color: var(--ink-placeholder); background: none; border: none; cursor: pointer; padding: 0.5rem;">
+                        ✕
+                    </button>
+                </div>
+                <div *ngIf="exerciseLogs.length === 0" class="flex flex-col items-center justify-center text-center" style="padding: 4rem 2rem;">
+                    <div style="width: 5rem; height: 5rem; background: var(--surface-subtle); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 1rem;">🏋️</div>
+                    <h3 class="type-title" style="margin-bottom: 0.25rem;">No workouts logged yet</h3>
+                    <p class="type-body-s" style="margin-bottom: 1.5rem;">Log exercise manually or connect Strava to bring activities into FoodBot.</p>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <button (click)="showExerciseModal = true" class="btn-green btn-sm">Log Exercise</button>
+                        <button *ngIf="!nutritionService.stravaStatus()?.isConnected" (click)="connectStrava()" class="btn-outline btn-sm">Connect Strava</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="showWaterModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+        <div class="card animate-slide-up" style="width: 100%; max-width: 24rem; padding: 2rem;">
+            <div class="flex items-center justify-between" style="margin-bottom: 1.5rem;">
+                <div>
+                    <h3 class="type-title">Log Water</h3>
+                    <p class="type-body-s">Add your latest glass or bottle.</p>
+                </div>
+                <button (click)="showWaterModal=false" style="color: var(--ink-placeholder); cursor: pointer; border: none; background: none; padding: 0.5rem;">✕</button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="form-label">Amount (ml)</label>
+                    <input [(ngModel)]="newWaterAmount" type="number" min="1" step="50" placeholder="500" class="form-input">
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="btn-outline btn-sm" (click)="newWaterAmount = 250">250ml</button>
+                    <button type="button" class="btn-outline btn-sm" (click)="newWaterAmount = 500">500ml</button>
+                    <button type="button" class="btn-outline btn-sm" (click)="newWaterAmount = 750">750ml</button>
+                    <button type="button" class="btn-outline btn-sm" (click)="newWaterAmount = 1000">1000ml</button>
+                </div>
+                <button (click)="addWaterEntry()" class="btn-green w-full btn-lg" style="margin-top: 0.5rem;">
+                    Save Water
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="showAddModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+        <div class="card animate-slide-up" style="width: 100%; max-width: 28rem; padding: 2rem;">
+            <div class="flex items-center justify-between" style="margin-bottom: 1.5rem;">
+                <div>
+                    <h3 class="type-title">Log Food</h3>
+                    <p class="type-body-s">What did you eat?</p>
+                </div>
+                <button (click)="showAddModal=false" style="color: var(--ink-placeholder); cursor: pointer; border: none; background: none; padding: 0.5rem;">✕</button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="form-label">Meal</label>
+                    <input [(ngModel)]="newEntry.name" type="text" placeholder="e.g. Grilled Salmon with Rice" class="form-input">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="form-label">Calories</label>
+                        <input [(ngModel)]="newEntry.calories" type="number" placeholder="350" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Meal Type</label>
+                        <select [(ngModel)]="newEntry.type" class="form-input">
+                            <option>Breakfast</option>
+                            <option>Lunch</option>
+                            <option>Dinner</option>
+                            <option>Snack</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div><label class="form-label">Protein (g)</label><input [(ngModel)]="newEntry.protein" type="number" placeholder="30" class="form-input"></div>
+                    <div><label class="form-label">Carbs (g)</label><input [(ngModel)]="newEntry.carbs" type="number" placeholder="40" class="form-input"></div>
+                    <div><label class="form-label">Fat (g)</label><input [(ngModel)]="newEntry.fat" type="number" placeholder="10" class="form-input"></div>
+                </div>
+                <button (click)="addEntry()" id="save-food-entry-btn" class="btn-green w-full btn-lg" style="margin-top: 0.5rem;">
+                    Save Entry
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="showExerciseModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+        <div class="card animate-slide-up" style="width: 100%; max-width: 28rem; padding: 2rem;">
+            <div class="flex items-center justify-between" style="margin-bottom: 1.5rem;">
+                <div>
+                    <h3 class="type-title">Log Exercise</h3>
+                    <p class="type-body-s">Add a workout manually when it did not come from Strava.</p>
+                </div>
+                <button (click)="showExerciseModal=false" style="color: var(--ink-placeholder); cursor: pointer; border: none; background: none; padding: 0.5rem;">✕</button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="form-label">Activity</label>
+                    <input [(ngModel)]="newExerciseEntry.activity" type="text" placeholder="e.g. Walking, Gym, Run" class="form-input">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="form-label">Duration (min)</label>
+                        <input [(ngModel)]="newExerciseEntry.durationMin" type="number" placeholder="45" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Calories Burned</label>
+                        <input [(ngModel)]="newExerciseEntry.caloriesBurned" type="number" placeholder="320" class="form-input">
+                    </div>
+                </div>
+                <button (click)="addExerciseEntry()" class="btn-green w-full btn-lg" style="margin-top: 0.5rem;">
+                    Save Workout
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

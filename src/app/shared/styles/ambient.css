@@ -1,0 +1,80 @@
+/* ── Surfaces ───────────────────────────── */
+:root {
+  --surface-base:        #FFFFFF;
+  --surface-raised:      #FAFAFA;
+  --surface-subtle:      #F5F5F5;
+  --surface-hover:       #F0F0F0;
+  --surface-glass:       rgba(255, 255, 255, 0.86);
+  --surface-dark:        #0A0A0A;
+  --surface-dark-raised: #161616;
+
+  /* ── Ink ────────────────────────────────── */
+  --ink-primary:     #0A0A0A;
+  --ink-secondary:   #3D3D3D;
+  --ink-tertiary:    #787878;
+  --ink-placeholder: #ADADAD;
+  --ink-disabled:    #CACACA;
+  --ink-inverse:     #FFFFFF;
+  --ink-link:        #0E8A3E;
+
+  /* ── Green ──────────────────────────────── */
+  --green-50:  #EFFDF5;
+  --green-100: #D6F8E6;
+  --green-300: #5EE49A;
+  --green-400: #2ED672;
+  --green-500: #16C65A;
+  --green-600: #0E8A3E;
+  --green-700: #0A6830;
+  --green-900: #052A14;
+
+  /* ── Blue-violet particles ──────────────── */
+  --particle-core:  #6B74E8;
+  --particle-mid:   #9099F0;
+  --particle-light: #B5BAF6;
+  --particle-faint: rgba(107, 116, 232, 0.16);
+  --dot-grid:       rgba(107, 116, 232, 0.18);
+  --dot-grid-faint: rgba(107, 116, 232, 0.08);
+  --particle-glow:  rgba(107, 116, 232, 0.05);
+
+  /* ── Borders ────────────────────────────── */
+  --border-faint:   #F0F0F0;
+  --border-subtle:  #E8E8E8;
+  --border-default: #D2D2D2;
+  --border-strong:  #ABABAB;
+  --border-focus:   #16C65A;
+
+  /* ── Motion ─────────────────────────────── */
+  --ease-snap:   cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-flow:   cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-drift:  cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dot-grid-hero {
+  position: absolute;
+  top:   0;
+  right: 0;
+  width: 58%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(circle, var(--dot-grid) 1.5px, transparent 1.5px);
+  background-size: 14px 14px;
+  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 20%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.1) 80%, transparent 100%),
+                      linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 45%, rgba(0,0,0,0.3) 70%, transparent 100%);
+  -webkit-mask-composite: multiply;
+  mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 20%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.1) 80%, transparent 100%),
+              linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 45%, rgba(0,0,0,0.3) 70%, transparent 100%);
+  mask-composite: multiply;
+}
+
+.dot-grid-section {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(circle, var(--dot-grid-faint) 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 40%, rgba(0,0,0,0.6) 0%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 40%, rgba(0,0,0,0.6) 0%, transparent 100%);
+}

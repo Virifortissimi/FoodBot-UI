@@ -1,0 +1,181 @@
+<div style="min-height: 100vh; background: var(--surface-base);" class="grid lg:grid-cols-2">
+
+    <!-- Left Side: Visual Panel -->
+    <div class="hidden lg:flex flex-col items-center justify-center relative overflow-hidden"
+        style="background: var(--surface-subtle); padding: 4rem;">
+        <div class="dot-grid-section" aria-hidden="true"></div>
+
+        <div class="relative z-10 text-center" style="max-width: 420px;">
+            <h1 class="type-display" style="margin-bottom: 1.5rem; font-size: 2.5rem;">
+                Welcome back.<br>
+                <span style="color: var(--green-600);">Your meals missed you.</span>
+            </h1>
+            <p class="type-body" style="margin-bottom: 2.5rem;">
+                Pick up right where you left off — your meal plans, recipes, and nutrition goals are all here waiting.
+            </p>
+
+            <!-- App Preview -->
+            <div style="position: relative;">
+                <img src="assets/images/login-hero.png" alt="FoodBot app in action"
+                    style="width: 100%; max-width: 360px; border-radius: 1.5rem; box-shadow: 0 20px 60px rgba(0,0,0,0.12); display: block; margin: 0 auto;">
+
+                <!-- Floating badges -->
+                <div class="card-glass"
+                    style="position: absolute; top: -0.5rem; left: 0; padding: 0.5rem 0.875rem; display: flex; align-items: center; gap: 0.5rem; animation: float-soft 5s ease-in-out infinite;">
+                    <span style="font-size: 1rem;">🔒</span>
+                    <span style="font-weight: 600; font-size: 0.75rem; color: var(--ink-primary);">256-bit
+                        encrypted</span>
+                </div>
+                <div class="card-glass"
+                    style="position: absolute; bottom: 1rem; right: -0.5rem; padding: 0.5rem 0.875rem; display: flex; align-items: center; gap: 0.5rem; animation: float-soft 6s ease-in-out 1s infinite;">
+                    <span style="font-size: 1rem;">⚡</span>
+                    <span style="font-weight: 600; font-size: 0.75rem; color: var(--ink-primary);">Instant sync</span>
+                </div>
+            </div>
+
+            <!-- Trust badges -->
+            <div class="flex justify-center gap-6" style="margin-top: 2.5rem;">
+                <div class="text-center">
+                    <p style="font-size: 1.25rem; font-weight: 800; color: var(--ink-primary);">10K+</p>
+                    <p class="type-body-s">Active Users</p>
+                </div>
+                <div style="width: 1px; background: var(--border-subtle);"></div>
+                <div class="text-center">
+                    <p style="font-size: 1.25rem; font-weight: 800; color: var(--ink-primary);">4.9★</p>
+                    <p class="type-body-s">User Rating</p>
+                </div>
+                <div style="width: 1px; background: var(--border-subtle);"></div>
+                <div class="text-center">
+                    <p style="font-size: 1.25rem; font-weight: 800; color: var(--ink-primary);">99.9%</p>
+                    <p class="type-body-s">Uptime</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side: Form -->
+    <div class="flex items-center justify-center p-8 sm:p-16">
+        <div style="max-width: 26rem; width: 100%;" class="space-y-8">
+            <!-- Mobile Logo -->
+            <div class="lg:hidden flex items-center gap-2" routerLink="/">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg"
+                    style="background: var(--green-500);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                        <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+                    </svg>
+                </div>
+                <span
+                    style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--ink-primary);">FoodBot</span>
+            </div>
+
+            <div>
+                <h2 class="type-heading" style="margin-bottom: 0.5rem;">Sign in to your account</h2>
+                <p class="type-body-s">Welcome back! Enter your details below.</p>
+                <p class="type-body-s" style="margin-top: 0.5rem;">FoodBot is a Scalefort innovation. Learn more at <a href="https://scalefort.africa" target="_blank" rel="noreferrer" style="color: var(--green-600); font-weight: 700; text-decoration: none;">scalefort.africa</a>.</p>
+            </div>
+
+            <form class="space-y-5" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                <div>
+                    <label for="email-address" class="form-label">Email address</label>
+                    <input id="email-address" name="email" type="email" autocomplete="email" required
+                        formControlName="email" class="form-input" placeholder="you@example.com">
+                </div>
+                <div>
+                    <label for="password" class="form-label">Password</label>
+                    <input id="password" name="password" type="password" autocomplete="current-password" required
+                        formControlName="password" class="form-input" placeholder="••••••••">
+                    <div class="flex justify-end" style="margin-top: 0.5rem;">
+                        <a href="#"
+                            style="color: var(--green-600); font-size: 0.8125rem; font-weight: 500; text-decoration: none;">Forgot
+                            password?</a>
+                    </div>
+                </div>
+
+
+                <button type="submit" [disabled]="loading || loginForm.invalid" class="btn-green w-full btn-lg">
+                    <span *ngIf="!loading">Sign In</span>
+                    <span *ngIf="loading" class="flex items-center justify-center gap-2">
+                        <span
+                            style="width: 1.25rem; height: 1.25rem; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; display: inline-block;"
+                            class="animate-spin"></span>
+                        Signing in...
+                    </span>
+                </button>
+
+                <!-- Divider -->
+                <div class="flex items-center gap-4" style="padding: 0.5rem 0;">
+                    <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+                    <span class="type-body-s">or continue with</span>
+                    <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+                </div>
+
+                <!-- Social Login (placeholder) -->
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" class="btn-outline btn-sm" style="display: flex; justify-content: center;">
+                        <svg viewBox="0 0 24 24" width="18" height="18">
+                            <path
+                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+                                fill="#4285F4" />
+                            <path
+                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                fill="#34A853" />
+                            <path
+                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                fill="#FBBC05" />
+                            <path
+                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                fill="#EA4335" />
+                        </svg>
+                        Google
+                    </button>
+                    <button type="button" class="btn-outline btn-sm" style="display: flex; justify-content: center;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path
+                                d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+                        </svg>
+                        Apple
+                    </button>
+                </div>
+            </form>
+
+            <div style="text-align: center;">
+                <p class="type-body-s">
+                    New to FoodBot?
+                    <a routerLink="/auth/register"
+                        style="font-weight: 700; color: var(--green-600); text-decoration: none; margin-left: 0.25rem;">Create
+                        a free account →</a>
+                </p>
+                <p class="type-body-s" style="margin-top: 0.75rem;">
+                    Product home:
+                    <a href="https://foodbot.ng" target="_blank" rel="noreferrer" style="color: var(--green-600); font-weight: 700; text-decoration: none;">foodbot.ng</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes float-soft {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .animate-spin {
+        animation: spin 0.6s linear infinite;
+    }
+</style>

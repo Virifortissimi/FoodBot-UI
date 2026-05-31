@@ -1,0 +1,324 @@
+<div class="beta-banner" role="status">
+  <div class="beta-banner__inner">
+    <span class="beta-banner__label">Beta</span>
+    <span>FoodBot is in beta. Drop your thoughts and suggestions in the link we'll share soon.</span>
+  </div>
+</div>
+
+<ng-container *ngIf="authResolved(); else appLoading">
+  <app-navbar *ngIf="showPublicChrome()"></app-navbar>
+
+  <ng-container *ngIf="showAppSidebar(); else publicShell">
+    <div class="app-shell" [class.is-collapsed]="sidebarCollapsed()" [class.is-drawer-open]="mobileSidebarOpen()">
+      <div *ngIf="mobileSidebarOpen()" class="app-shell__backdrop" (click)="closeMobileSidebar()"></div>
+
+      <aside class="app-sidebar" [class.is-collapsed]="sidebarCollapsed()">
+        <div class="app-sidebar__header">
+          <a routerLink="/dashboard" class="app-sidebar__brand" (click)="closeMobileSidebar()">
+            <span class="app-sidebar__brand-mark">
+              <img src="https://res.cloudinary.com/virifortissimi/image/upload/v1780138048/Foodbot/favicon-white.png" alt="" aria-hidden="true">
+            </span>
+            <span *ngIf="!sidebarCollapsed()" class="app-sidebar__brand-copy">
+              <strong>FoodBot</strong>
+              <small>App Navigation</small>
+            </span>
+          </a>
+
+          <button
+            type="button"
+            class="app-sidebar__collapse"
+            [attr.aria-label]="sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+            [title]="sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+            (click)="toggleSidebarCollapsed()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path *ngIf="!sidebarCollapsed()" d="m15 18-6-6 6-6" />
+              <path *ngIf="sidebarCollapsed()" d="m9 18 6-6-6-6" />
+            </svg>
+          </button>
+        </div>
+
+        <nav class="app-sidebar__nav">
+          <a
+            *ngFor="let item of sidebarItems"
+            [routerLink]="item.link"
+            routerLinkActive="is-active"
+            [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+            class="app-sidebar__link"
+            [attr.aria-label]="item.label"
+            [title]="item.label"
+            (click)="closeMobileSidebar()">
+            <span class="app-sidebar__icon" [ngSwitch]="item.icon" aria-hidden="true">
+              <svg *ngSwitchCase="'dashboard'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                <rect x="14" y="3" width="7" height="4" rx="1.5" />
+                <rect x="14" y="10" width="7" height="11" rx="1.5" />
+                <rect x="3" y="14" width="7" height="7" rx="1.5" />
+              </svg>
+              <svg *ngSwitchCase="'calendar'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 2v4" />
+                <path d="M16 2v4" />
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <path d="M3 10h18" />
+              </svg>
+              <svg *ngSwitchCase="'book'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </svg>
+              <svg *ngSwitchCase="'chat'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                <path d="M8 9h8" />
+                <path d="M8 13h5" />
+              </svg>
+              <svg *ngSwitchCase="'heart'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19.5 13.6 12 21l-7.5-7.4a4.8 4.8 0 0 1 6.8-6.8L12 7.5l.7-.7a4.8 4.8 0 1 1 6.8 6.8Z" />
+              </svg>
+              <svg *ngSwitchCase="'cart'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="8" cy="20" r="1.5" />
+                <circle cx="18" cy="20" r="1.5" />
+                <path d="M3 4h2l2.2 10.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L21 7H7" />
+              </svg>
+              <svg *ngSwitchCase="'graduation'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m22 10-10-5L2 10l10 5 10-5Z" />
+                <path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5" />
+              </svg>
+              <svg *ngSwitchCase="'terminal'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m4 17 6-6-6-6" />
+                <path d="M12 19h8" />
+              </svg>
+              <svg *ngSwitchCase="'sparkles'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m12 3 1.9 4.8L19 9.7l-4 3.1 1.4 5-4.4-2.7-4.4 2.7 1.4-5-4-3.1 5.1-1.9L12 3Z" />
+              </svg>
+              <svg *ngSwitchCase="'user'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21a8 8 0 0 0-16 0" />
+                <circle cx="12" cy="8" r="4" />
+              </svg>
+            </span>
+            <span *ngIf="!sidebarCollapsed()" class="app-sidebar__label">{{ item.label }}</span>
+          </a>
+        </nav>
+
+        <div class="app-sidebar__footer">
+          <a routerLink="/profile" class="app-sidebar__profile" (click)="closeMobileSidebar()">
+            <span class="app-sidebar__avatar">{{ sidebarUserInitial }}</span>
+            <span *ngIf="!sidebarCollapsed()" class="app-sidebar__profile-copy">
+              <strong>{{ sidebarUserName }}</strong>
+              <small>{{ sidebarUserEmail }}</small>
+            </span>
+          </a>
+
+          <div class="app-sidebar__utilities" [class.is-collapsed]="sidebarCollapsed()">
+            <button
+              type="button"
+              class="app-sidebar__utility"
+              [attr.aria-label]="themeService.theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+              [title]="themeService.theme() === 'dark' ? 'Light Mode' : 'Dark Mode'"
+              (click)="themeService.toggleTheme()">
+              <span class="app-sidebar__utility-icon" aria-hidden="true">
+                <svg *ngIf="themeService.theme() !== 'dark'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 2v2.5" />
+                  <path d="M12 19.5V22" />
+                  <path d="m4.9 4.9 1.8 1.8" />
+                  <path d="m17.3 17.3 1.8 1.8" />
+                  <path d="M2 12h2.5" />
+                  <path d="M19.5 12H22" />
+                  <path d="m4.9 19.1 1.8-1.8" />
+                  <path d="m17.3 6.7 1.8-1.8" />
+                </svg>
+                <svg *ngIf="themeService.theme() === 'dark'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
+                </svg>
+              </span>
+              <span *ngIf="!sidebarCollapsed()">{{ themeService.theme() === 'dark' ? 'Light Mode' : 'Dark Mode' }}</span>
+            </button>
+            <button
+              type="button"
+              class="app-sidebar__utility app-sidebar__utility--danger"
+              aria-label="Logout"
+              title="Logout"
+              (click)="signOut()">
+              <span class="app-sidebar__utility-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <path d="m16 17 5-5-5-5" />
+                  <path d="M21 12H9" />
+                </svg>
+              </span>
+              <span *ngIf="!sidebarCollapsed()">Logout</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="app-shell__content">
+        <div class="app-shell__mobile-topbar">
+          <button type="button" class="app-shell__menu-btn" (click)="toggleMobileSidebar()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12h18" />
+              <path d="M3 6h18" />
+              <path d="M3 18h18" />
+            </svg>
+          </button>
+          <span class="app-shell__mobile-title">{{ currentSectionLabel }}</span>
+        </div>
+
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </ng-container>
+
+  <ng-template #publicShell>
+    <main class="min-h-screen bg-neutral-50 dark:bg-neutral-900">
+      <router-outlet></router-outlet>
+    </main>
+  </ng-template>
+</ng-container>
+
+<ng-template #appLoading>
+  <section class="app-bootstrap-loader" aria-label="Loading application">
+    <div *ngIf="showWorkspaceLoader(); else publicRefreshLoader" class="app-bootstrap-loader__card">
+      <div class="app-bootstrap-loader__brand">
+        <span class="app-bootstrap-loader__mark">
+          <img src="https://res.cloudinary.com/virifortissimi/image/upload/v1780138048/Foodbot/favicon-white.png" alt="" aria-hidden="true">
+        </span>
+        <div>
+          <strong>FoodBot</strong>
+          <small>Loading your workspace</small>
+        </div>
+      </div>
+      <div class="app-bootstrap-loader__progress" aria-hidden="true">
+        <span></span>
+      </div>
+    </div>
+
+    <ng-template #publicRefreshLoader>
+      <div class="app-bootstrap-loader__spinner-wrap">
+        <span class="app-bootstrap-loader__spinner" aria-hidden="true"></span>
+      </div>
+    </ng-template>
+  </section>
+</ng-template>
+
+<button
+  *ngIf="showCoachButton()"
+  type="button"
+  class="coach-fab"
+  [class.is-loading]="coachActionLoading()"
+  [attr.aria-label]="coachButtonLabel"
+  (click)="onCoachButtonClick()">
+  <span class="coach-fab__icon" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      <path d="M8 9h8" />
+      <path d="M8 13h5" />
+    </svg>
+  </span>
+  <span>{{ coachActionLoading() ? 'Opening...' : coachButtonLabel }}</span>
+</button>
+
+<section
+  *ngIf="coachModalOpen()"
+  class="coach-modal"
+  [class.is-minimized]="coachModalMinimized()"
+  [class.is-maximized]="coachModalMaximized()">
+  <header class="coach-modal__header">
+    <div>
+      <p class="coach-modal__eyebrow">Premium Coach</p>
+      <h2 class="coach-modal__title">AI Coach</h2>
+    </div>
+    <div class="coach-modal__actions">
+      <button
+        type="button"
+        class="coach-modal__icon-btn"
+        [attr.aria-label]="coachModalMinimized() ? 'Restore coach window' : 'Minimize coach window'"
+        [title]="coachModalMinimized() ? 'Restore' : 'Minimize'"
+        (click)="toggleCoachMinimize()">
+        <svg *ngIf="!coachModalMinimized()" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M5 12h14" />
+        </svg>
+        <svg *ngIf="coachModalMinimized()" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+          <path d="M16 3h3a2 2 0 0 1 2 2v3" />
+          <path d="M8 21H5a2 2 0 0 1-2-2v-3" />
+          <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="coach-modal__icon-btn"
+        [attr.aria-label]="coachModalMaximized() ? 'Restore coach size' : 'Enlarge coach window'"
+        [title]="coachModalMaximized() ? 'Restore size' : 'Enlarge'"
+        (click)="toggleCoachMaximize()">
+        <svg *ngIf="!coachModalMaximized()" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M15 3h6v6" />
+          <path d="M9 21H3v-6" />
+          <path d="M21 3l-7 7" />
+          <path d="M3 21l7-7" />
+        </svg>
+        <svg *ngIf="coachModalMaximized()" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+          <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+          <path d="M3 8l6-6" />
+          <path d="M21 16l-6 6" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="coach-modal__icon-btn coach-modal__icon-btn--danger"
+        aria-label="Close coach window"
+        title="Close"
+        (click)="closeCoachModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div *ngIf="!coachModalMinimized()" class="coach-modal__body">
+    <div class="coach-modal__messages">
+      <div
+        *ngFor="let message of coachMessages()"
+        class="coach-bubble"
+        [class.is-user]="message.role === 'user'">
+        <p>{{ message.content }}</p>
+      </div>
+
+      <div *ngIf="coachSending()" class="coach-bubble">
+        <p>Thinking...</p>
+      </div>
+    </div>
+
+    <div class="coach-modal__composer">
+      <textarea
+        [(ngModel)]="coachDraft"
+        rows="3"
+        class="coach-modal__input"
+        placeholder="Ask about meals, cravings, macros, or healthy habits..."
+        (keydown)="onCoachComposerKeydown($event)"></textarea>
+      <button
+        type="button"
+        class="btn-green"
+        [disabled]="coachSending() || !coachDraft.trim()"
+        (click)="sendCoachMessage()">
+        {{ coachSending() ? 'Sending...' : 'Send' }}
+      </button>
+    </div>
+  </div>
+</section>
+
+<app-footer *ngIf="showPublicChrome()"></app-footer>
+<fb-toast-container></fb-toast-container>

@@ -1,0 +1,274 @@
+<div class="chat-wrapper"
+    style="margin-top: var(--public-chrome-height); height: calc(100vh - var(--public-chrome-height)); background: var(--surface-base); display: flex; flex-direction: column; overflow: hidden;">
+
+    <!-- Chat Header -->
+    <header
+        style="background: var(--surface-base); border-bottom: 1px solid var(--border-subtle); padding: 1rem; flex-shrink: 0; z-index: 10;">
+        <div
+            style="max-width: 56rem; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-200/50"
+                    style="background: var(--green-500);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 8V4H8" />
+                        <rect width="16" height="12" x="4" y="8" rx="2" />
+                        <path d="M2 14h2" />
+                        <path d="M20 14h2" />
+                        <path d="M15 13v2" />
+                        <path d="M9 13v2" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="type-title" style="line-height: 1.2;">Chef Amara</h2>
+                    <div class="flex items-center gap-1.5">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                                [style.background]="chatService.isConnected() ? 'var(--green-400)' : 'var(--color-error)'"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2"
+                                [style.background]="chatService.isConnected() ? 'var(--green-500)' : 'var(--color-error)'"></span>
+                        </span>
+                        <span class="type-body-s" style="font-size: 0.75rem;">{{ chatService.isConnected() ? 'Online'
+                            : 'Connecting...' }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="tag-green tag shadow-sm">👨‍🍳 {{ userName() }}</div>
+        </div>
+    </header>
+
+    <!-- Messages Container -->
+    <div style="flex: 1; overflow-y: auto; padding: 2rem 1rem;" #scrollContainer class="chat-scroll-area"
+        (scroll)="onScroll()">
+        <div style="max-width: 56rem; margin: 0 auto;" class="space-y-8">
+
+            <!-- Feature Education -->
+            <app-feature-education-card *ngIf="!educationService.isDismissed('ai_inspiration')"
+                title="Authentic African Cooking"
+                description="Not sure what to cook? Just tell me what ingredients you have, and I'll find a traditional recipe."
+                icon="🤖" (onDismiss)="educationService.dismiss('ai_inspiration')">
+            </app-feature-education-card>
+
+            <!-- Initial Welcome -->
+            <div class="flex gap-4 animate-slide-up">
+                <div class="w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center text-white text-xl shadow-md"
+                    style="background: var(--green-500); transform: rotate(-3deg);">🌍</div>
+                <div class="card card-accent"
+                    style="padding: 1.25rem 1.5rem; max-width: 80%; border-radius: 0 1.5rem 1.5rem 1.5rem;">
+                    <p style="font-weight: 500; color: var(--ink-primary); line-height: 1.6;">
+                        Moni o, {{ userName() }}! 👋 I'm your authentic African Food Assistant.
+                        I can help you discover flavors from every corner of the continent.
+                        <br><br>
+                        What's in your pantry? Or would you like to see a classic recipe like <strong>Jollof
+                            Rice</strong> or <strong>Doro Wat</strong>?
+                    </p>
+                </div>
+            </div>
+
+            <!-- Messages Loop -->
+            <div *ngFor="let msg of chatService.messages()" class="flex gap-4 animate-slide-up"
+                [class.flex-row-reverse]="msg.sender === userName()">
+
+                <!-- Avatar -->
+                <div class="w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center text-white text-xl shadow-md"
+                    [style.background]="msg.sender === userName() ? 'var(--ink-primary)' : 'var(--green-500)'"
+                    [style.transform]="msg.sender === userName() ? 'rotate(3deg)' : 'rotate(-3deg)'">
+                    {{ msg.sender === userName() ? '👤' : '👨‍🍳' }}
+                </div>
+
+                <!-- Message Bubble -->
+                <div class="flex flex-col gap-2" [class.items-end]="msg.sender === userName()" style="max-width: 85%;">
+                    <div class="card" [style.padding]="'1.25rem 1.5rem'"
+                        [style.borderRadius]="msg.sender === userName() ? '1.5rem 0 1.5rem 1.5rem' : '0 1.5rem 1.5rem 1.5rem'"
+                        [style.background]="msg.sender === userName() ? 'var(--surface-subtle)' : 'var(--surface-base)'"
+                        [style.borderColor]="msg.sender === userName() ? 'var(--border-subtle)' : 'var(--border-default)'">
+
+                        <p style="line-height: 1.6; white-space: pre-wrap; font-size: 0.9375rem;">{{ msg.content }}</p>
+
+                        <!-- Recipe Result Card (if present) -->
+                        <div *ngIf="msg.recipe" class="mt-6 space-y-6">
+                            <div class="card card-accent overflow-hidden" style="padding: 0;">
+                                <!-- Recipe Header with Image if available -->
+                                <div class="relative h-48 bg-neutral-100" *ngIf="msg.recipe.imageUrl">
+                                    <img [src]="msg.recipe.imageUrl" alt="Recipe Image"
+                                        class="w-full h-full object-cover">
+                                </div>
+
+                                <div style="padding: 1.5rem;">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <h3 class="type-title" style="color: var(--green-700);">{{ msg.recipe.name }}
+                                        </h3>
+                                        <div class="flex gap-2">
+                                            <span class="tag-green tag shadow-sm">🥘 {{ msg.recipe.cuisine }}</span>
+                                        </div>
+                                    </div>
+
+                                    <p class="type-body-s mb-6 line-clamp-3 italic">"{{ msg.recipe.description }}"</p>
+
+                                    <!-- Quick Stats -->
+                                    <div class="grid grid-cols-3 gap-3 mb-8">
+                                        <div class="text-center p-3 rounded-2xl bg-white border border-green-50 shadow-sm"
+                                            [appTooltip]="getTooltipContent('calories')">
+                                            <p class="type-overline" style="font-size: 0.625rem;">Calories</p>
+                                            <p style="font-size: 1rem; font-weight: 800; color: var(--ink-primary);">{{
+                                                parseJson(msg.recipe.nutrition).Calories }}</p>
+                                        </div>
+                                        <div class="text-center p-3 rounded-2xl bg-white border border-green-50 shadow-sm"
+                                            [appTooltip]="getTooltipContent('protein')">
+                                            <p class="type-overline" style="font-size: 0.625rem;">Protein</p>
+                                            <p style="font-size: 1rem; font-weight: 800; color: var(--green-600);">{{
+                                                parseJson(msg.recipe.nutrition).Protein }}</p>
+                                        </div>
+                                        <div class="text-center p-3 rounded-2xl bg-white border border-green-50 shadow-sm"
+                                            [appTooltip]="getTooltipContent('time')">
+                                            <p class="type-overline" style="font-size: 0.625rem;">Time</p>
+                                            <p style="font-size: 1rem; font-weight: 800; color: var(--ink-primary);">{{
+                                                msg.recipe.cookTimeMin }}m</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Ingredients -->
+                                    <div class="mb-8">
+                                        <h4 class="type-overline mb-3"
+                                            style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <span style="font-size: 1.125rem;">🛒</span> Ingredients
+                                        </h4>
+                                        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+                                            <li *ngFor="let item of parseJson(msg.recipe.ingredients)"
+                                                class="flex items-start gap-2 type-body-s"
+                                                style="font-size: 0.8125rem;">
+                                                <span
+                                                    style="color: var(--green-500); font-weight: 800; margin-top: 1px;">•</span>
+                                                {{ item }}
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Steps -->
+                                    <div class="mb-8">
+                                        <h4 class="type-overline mb-3"
+                                            style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <span style="font-size: 1.125rem;">🍳</span> Preparation
+                                        </h4>
+                                        <div class="space-y-4">
+                                            <div *ngFor="let step of parseJson(msg.recipe.steps); let i = index"
+                                                class="flex gap-3">
+                                                <span
+                                                    class="w-6 h-6 rounded-lg bg-green-50 text-green-600 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">
+                                                    {{ i + 1 }}
+                                                </span>
+                                                <p class="type-body-s" style="line-height: 1.6; font-size: 0.875rem;">{{
+                                                    step }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Visual Nutrition Breakdown -->
+                                    <div class="pt-6 border-t border-green-100">
+                                        <h4 class="type-overline mb-4">Calorie Split</h4>
+                                        <div
+                                            class="h-3 w-full bg-neutral-100 rounded-full overflow-hidden flex shadow-inner">
+                                            <div [style.width.%]="getMacroPercentage(msg.recipe, parseJson(msg.recipe.nutrition).Protein)"
+                                                style="background: var(--green-500);" [appTooltip]="'Protein Calories'">
+                                            </div>
+                                            <div [style.width.%]="getMacroPercentage(msg.recipe, parseJson(msg.recipe.nutrition).Fat)"
+                                                style="background: #fbbf24;" [appTooltip]="'Fat Calories'"></div>
+                                            <div [style.width.%]="100 - getMacroPercentage(msg.recipe, parseJson(msg.recipe.nutrition).Protein) - getMacroPercentage(msg.recipe, parseJson(msg.recipe.nutrition).Fat)"
+                                                style="background: #3b82f6;" [appTooltip]="'Carb Calories'"></div>
+                                        </div>
+                                        <div class="flex gap-4 mt-3 justify-center">
+                                            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full"
+                                                    style="background: var(--green-500);"></span><span
+                                                    class="type-body-s" style="font-size: 0.625rem;">Protein</span>
+                                            </div>
+                                            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full"
+                                                    style="background: #fbbf24;"></span><span class="type-body-s"
+                                                    style="font-size: 0.625rem;">Fat</span></div>
+                                            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full"
+                                                    style="background: #3b82f6;"></span><span class="type-body-s"
+                                                    style="font-size: 0.625rem;">Carbs</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div *ngIf="chatService.isTyping()" class="flex gap-4 animate-pulse">
+                <div class="w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center text-white text-xl shadow-md"
+                    style="background: var(--green-500); transform: rotate(-3deg);">👨‍🍳</div>
+                <div class="card card-accent" style="padding: 1rem 1.5rem; border-radius: 0 1.5rem 1.5rem 1.5rem;">
+                    <div class="flex gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-green-300 animate-bounce"></span>
+                        <span class="w-2 h-2 rounded-full bg-green-400 animate-bounce"
+                            [style.animation-delay]="'150ms'"></span>
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-bounce"
+                            [style.animation-delay]="'300ms'"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suggested Prompts Strip -->
+    <div style="background: var(--surface-base); border-top: 1px solid var(--border-subtle); padding: 0.75rem 0;"
+        *ngIf="!chatService.messages().length">
+        <div style="max-width: 56rem; margin: 0 auto; display: flex; gap: 0.75rem; overflow-x: auto; padding: 0 1rem;"
+            class="hide-scrollbar">
+            <button *ngFor="let prompt of suggestedPrompts" (click)="sendMessage(prompt)"
+                class="tag-green tag cursor-pointer hover:bg-green-100 transition-colors whitespace-nowrap py-2 px-4">
+                Ask about {{ prompt }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Input Area -->
+    <footer style="background: var(--surface-base); padding: 1.5rem 1rem 2rem; flex-shrink: 0;">
+        <div style="max-width: 56rem; margin: 0 auto; position: relative;">
+            <input type="text" [(ngModel)]="userInput" (keyup.enter)="sendMessage()"
+                placeholder="Ask Chef Amara anything about African food..."
+                class="form-input w-full shadow-lg shadow-green-100/20"
+                style="height: 4rem; padding-left: 1.5rem; padding-right: 4rem; border-radius: 2rem;">
+
+            <button (click)="sendMessage()"
+                style="position: absolute; right: 0.75rem; top: 0.75rem; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--green-500); color: white; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: transform 200ms;"
+                class="hover:scale-110 active:scale-95 shadow-md shadow-green-500/30">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                </svg>
+            </button>
+        </div>
+        <p class="text-center type-body-s mt-3" style="font-size: 0.7rem; color: var(--ink-placeholder);">
+            Chef Amara can suggest authentic recipes, but always verify ingredients for allergies.
+        </p>
+    </footer>
+</div>
+
+<style>
+    .chat-scroll-area::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .chat-scroll-area::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .chat-scroll-area::-webkit-scrollbar-thumb {
+        background: var(--border-subtle);
+        border-radius: 10px;
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>

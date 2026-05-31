@@ -1,0 +1,138 @@
+.dashboard-badge-celebrations {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.dashboard-badge-logo-strip {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.875rem;
+    border: 1px solid color-mix(in srgb, var(--green-500) 35%, var(--border-default));
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--green-500) 7%, var(--surface-base));
+}
+
+.dashboard-badge-logo-strip.compact {
+    border: 0;
+    padding: 0;
+    background: transparent;
+}
+
+.dashboard-badge-logo {
+    width: 3.75rem;
+    min-height: 3.75rem;
+    border: 1px solid var(--border-default);
+    border-radius: 0.5rem;
+    background: var(--surface-base);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    transition: border-color 150ms, transform 150ms, background 150ms;
+}
+
+.dashboard-badge-logo:hover,
+.dashboard-badge-logo.selected {
+    border-color: var(--green-500);
+    background: color-mix(in srgb, var(--green-500) 6%, var(--surface-base));
+    transform: translateY(-1px);
+}
+
+.dashboard-badge-logo img {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: block;
+}
+
+.dashboard-badge-logo.locked img {
+    filter: grayscale(1);
+    opacity: 0.62;
+}
+
+.dashboard-badge-logo span {
+    color: var(--ink-secondary);
+    font-size: 0.6875rem;
+    font-weight: 800;
+}
+
+.dashboard-badge-note {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem;
+    border: 1px solid color-mix(in srgb, var(--green-500) 30%, var(--border-default));
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--green-500) 9%, var(--surface-base));
+}
+
+.dashboard-badge-note.inline {
+    margin-top: 0.875rem;
+    grid-template-columns: 1fr;
+}
+
+.dashboard-badge-dismiss {
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--border-default);
+    border-radius: 0.5rem;
+    background: var(--surface-base);
+    color: var(--ink-secondary);
+    cursor: pointer;
+}
+
+.dashboard-badge-dismiss:hover {
+    color: var(--ink-primary);
+    background: var(--surface-hover);
+}
+
+.dashboard-achievements-panel {
+    margin-top: 1.5rem;
+}
+
+.dashboard-badge-progress-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.dashboard-badge-progress-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.875rem;
+    align-items: start;
+}
+
+.dashboard-badge-progress-copy {
+    min-width: 0;
+}
+
+.dashboard-badge-progress-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    color: var(--ink-primary);
+}
+
+.dashboard-badge-progress-title span {
+    color: var(--ink-secondary);
+    font-size: 0.8125rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .dashboard-badge-logo {
+        width: 3.35rem;
+        min-height: 3.35rem;
+    }
+
+    .dashboard-badge-logo img {
+        width: 2.45rem;
+        height: 2.45rem;
+    }
+}

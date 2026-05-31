@@ -1,0 +1,252 @@
+<div style="min-height: 100vh; background: var(--surface-base); padding: 6rem 1rem 3rem;">
+    <div style="max-width: 56rem; margin: 0 auto;" class="space-y-8">
+
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <p class="type-overline" style="margin-bottom: 0.5rem;">Groceries</p>
+                <h1 class="type-heading">Shopping List</h1>
+                <p class="type-body-s" style="margin-top: 0.25rem;">Auto-generated from your weekly meal plan. Check off
+                    as you shop.</p>
+                <p *ngIf="quotaCopy()" class="type-body-s" style="margin-top: 0.45rem; color: var(--ink-secondary);">
+                    {{ quotaCopy() }}
+                </p>
+            </div>
+            <div class="flex items-center gap-3 flex-wrap">
+                <button (click)="copyList()" id="copy-shopping-list-btn" class="btn-outline btn-sm"
+                    [disabled]="categories().length === 0 || initialLoading">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                    </svg>
+                    Copy
+                </button>
+                <div class="relative" *ngIf="categories().length > 0">
+                    <button (click)="toggleShareMenu()" class="btn-outline btn-sm">
+                        Share
+                    </button>
+
+                    <div *ngIf="shareMenuOpen()" class="card-glass absolute right-0 mt-2 w-52 py-2 animate-slide-up"
+                        style="z-index: 40;">
+                        <button type="button" (click)="shareList()" class="share-option">More Options</button>
+                        <button type="button" (click)="shareTo('whatsapp')" class="share-option">WhatsApp</button>
+                        <button type="button" (click)="shareTo('x')" class="share-option">X / Twitter</button>
+                        <button type="button" (click)="shareTo('facebook')" class="share-option">Facebook</button>
+                        <button type="button" (click)="shareTo('email')" class="share-option">Email</button>
+                        <button type="button" (click)="shareTo('copy')" class="share-option">Copy Link</button>
+                    </div>
+                </div>
+                <button (click)="generateList()" id="regenerate-shopping-list-btn" [disabled]="generating || !canGenerateList()"
+                    class="btn-green btn-sm">
+                    <svg *ngIf="!generating" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                        <path d="M21 3v5h-5" />
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                        <path d="M8 16H3v5" />
+                    </svg>
+                    {{ generating ? 'Generating...' : 'Build New List' }}
+                </button>
+            </div>
+        </header>
+
+        <div *ngIf="initialLoading || generating" class="card-glass animate-slide-up"
+            style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div
+                style="width: 2.75rem; height: 2.75rem; border-radius: 999px; border: 3px solid var(--green-100); border-top-color: var(--green-500); animation: spin 0.8s linear infinite;">
+            </div>
+            <div>
+                <h3 class="type-title" style="font-size: 1rem;">
+                    {{ initialLoading ? 'Loading your shopping list' : 'Building a fresh shopping list' }}
+                </h3>
+                <p class="type-body-s" style="margin-top: 0.2rem;">
+                    {{ initialLoading ? 'Checking your latest saved items.' : 'Grouping ingredients from your current meal plan.' }}
+                </p>
+            </div>
+        </div>
+
+        <div *ngIf="shoppingBlocked()" class="card" style="padding: 2rem;">
+            <p class="type-overline" style="margin-bottom: 0.6rem;">Upgrade Required</p>
+            <h2 class="type-heading" style="margin-bottom: 0.75rem;">Shopping Lists are not available on Free</h2>
+            <p class="type-body-s" style="max-width: 36rem; margin-bottom: 1.5rem;">
+                Upgrade to Pro to generate shopping lists from your meal plans and manage them as you shop.
+            </p>
+            <div class="flex items-center gap-3 flex-wrap">
+                <a routerLink="/pricing" class="btn-green">View Plans</a>
+                <a routerLink="/meal-planner" class="btn-outline">Open Meal Planner</a>
+            </div>
+        </div>
+
+        <div *ngIf="!shoppingBlocked() && categories().length > 0" class="card flex items-center gap-6" style="padding: 1.25rem 1.5rem;">
+            <div class="flex-1">
+                <div class="flex items-center justify-between" style="font-size: 0.875rem; margin-bottom: 0.5rem;">
+                    <span style="font-weight: 500; color: var(--ink-secondary);">Shopping progress</span>
+                    <span style="font-weight: 700; color: var(--green-600);">{{checkedCount}}/{{totalCount}}
+                        items</span>
+                </div>
+                <div style="height: 8px; background: var(--surface-subtle); border-radius: 100px; overflow: hidden;">
+                    <div style="height: 100%; background: var(--green-500); border-radius: 100px; transition: width 300ms;"
+                        [style.width]="progressPercent + '%'"></div>
+                </div>
+            </div>
+            <div *ngIf="checkedCount === totalCount && totalCount > 0" style="font-size: 1.5rem;"
+                class="animate-bounce-slow">🎉</div>
+        </div>
+
+        <div *ngFor="let category of !shoppingBlocked() ? categories() : []" class="card" style="padding: 0; overflow: hidden;">
+            <div class="flex items-center gap-3"
+                style="padding: 1rem 1.5rem; background: var(--surface-subtle); border-bottom: 1px solid var(--border-faint);">
+                <button
+                    type="button"
+                    class="shopping-section-toggle"
+                    [disabled]="isCategoryUpdating(category.name)"
+                    [attr.aria-label]="isCategoryChecked(category) ? 'Uncheck all items in ' + category.name : 'Check all items in ' + category.name"
+                    [attr.aria-pressed]="isCategoryChecked(category)"
+                    (click)="toggleCategory(category)">
+                    <span
+                        class="shopping-section-toggle__box"
+                        [class.is-checked]="isCategoryChecked(category)"
+                        [class.is-indeterminate]="isCategoryIndeterminate(category)">
+                        <svg *ngIf="isCategoryChecked(category)" xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                            viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span *ngIf="!isCategoryChecked(category) && isCategoryIndeterminate(category)"
+                            class="shopping-section-toggle__dash"></span>
+                    </span>
+                    <span class="shopping-section-toggle__label">
+                        {{ isCategoryChecked(category) ? 'Uncheck section' : 'Check section' }}
+                    </span>
+                </button>
+                <span style="font-size: 1.25rem;">{{category.emoji}}</span>
+                <h3 style="font-weight: 700; font-size: 0.9375rem; color: var(--ink-primary);">{{category.name}}</h3>
+                <span class="type-body-s">{{ getCheckedItemCount(category) }}/{{ category.items.length }} done</span>
+                <span class="type-body-s" style="margin-left: auto;">{{category.items.length}} items</span>
+            </div>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                <li *ngFor="let item of category.items" class="flex items-center gap-4 group"
+                    style="padding: 0.875rem 1.5rem; border-bottom: 1px solid var(--border-faint); cursor: pointer; transition: background 130ms;"
+                    (click)="toggleItem(item)" onmouseenter="this.style.background='var(--surface-hover)'"
+                    onmouseleave="this.style.background='transparent'">
+                    <div style="width: 1.25rem; height: 1.25rem; border-radius: 0.375rem; border: 2px solid; display: flex; align-items: center; justify-content: center; transition: all 150ms; flex-shrink: 0;"
+                        [style.borderColor]="item.isChecked ? 'var(--green-500)' : 'var(--border-default)'"
+                        [style.background]="item.isChecked ? 'var(--green-500)' : 'transparent'">
+                        <svg *ngIf="item.isChecked" xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                            viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </div>
+                    <span style="flex: 1; font-size: 0.875rem; font-weight: 500; transition: color 150ms;"
+                        [style.textDecoration]="item.isChecked ? 'line-through' : 'none'"
+                        [style.color]="item.isChecked ? 'var(--ink-placeholder)' : 'var(--ink-primary)'">
+                        {{item.name}}
+                    </span>
+                    <span class="type-body-s">{{item.quantity}}</span>
+                </li>
+            </ul>
+        </div>
+
+        <div *ngIf="!shoppingBlocked() && categories().length === 0 && !initialLoading && !generating"
+            class="flex flex-col items-center justify-center text-center space-y-4" style="padding: 5rem 0;">
+            <div
+                style="width: 5rem; height: 5rem; background: var(--surface-subtle); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">
+                🛒</div>
+            <div class="space-y-1">
+                <h3 class="type-title">Your basket is looking lonely</h3>
+                <p class="type-body-s">Add meals to your planner to see your ingredients here.</p>
+            </div>
+            <a routerLink="/meal-planner" class="btn-green">Build My Meal Plan</a>
+        </div>
+
+        <div *ngIf="copied" class="card-glass animate-slide-up"
+            style="position: fixed; bottom: 1.5rem; right: 1.5rem; padding: 0.75rem 1.25rem; z-index: 50; display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 600; color: var(--green-600);">
+            ✓ Shopping list copied!
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .shopping-section-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        border: none;
+        background: transparent;
+        padding: 0;
+        color: var(--ink-secondary);
+        cursor: pointer;
+        transition: color 160ms ease;
+    }
+
+    .shopping-section-toggle:hover {
+        color: var(--ink-primary);
+    }
+
+    .shopping-section-toggle:disabled {
+        opacity: 0.55;
+        cursor: wait;
+    }
+
+    .shopping-section-toggle__box {
+        width: 1.3rem;
+        height: 1.3rem;
+        border-radius: 0.4rem;
+        border: 2px solid var(--border-default);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        transition: all 160ms ease;
+        flex-shrink: 0;
+    }
+
+    .shopping-section-toggle__box.is-checked,
+    .shopping-section-toggle__box.is-indeterminate {
+        border-color: var(--green-500);
+        background: var(--green-500);
+    }
+
+    .shopping-section-toggle__dash {
+        width: 0.55rem;
+        height: 2px;
+        border-radius: 999px;
+        background: white;
+    }
+
+    .shopping-section-toggle__label {
+        font-size: 0.82rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .share-option {
+        display: block;
+        width: 100%;
+        padding: 0.65rem 1rem;
+        text-align: left;
+        font-size: 0.875rem;
+        color: var(--ink-secondary);
+        background: transparent;
+        border: none;
+        transition: background 160ms ease, color 160ms ease;
+    }
+
+    .share-option:hover {
+        background: var(--surface-hover);
+        color: var(--ink-primary);
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>

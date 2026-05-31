@@ -1,0 +1,164 @@
+<div style="min-height: 100vh; background: var(--surface-base);" class="grid lg:grid-cols-2">
+
+    <!-- Left Side: Visual Panel -->
+    <div class="hidden lg:flex flex-col items-center justify-center relative overflow-hidden"
+        style="background: var(--surface-subtle); padding: 4rem;">
+        <div class="dot-grid-section" aria-hidden="true"></div>
+
+        <div class="relative z-10 text-center" style="max-width: 440px;">
+            <span class="type-overline" style="display: block; margin-bottom: 1rem;">Join 10,000+ Healthy Eaters</span>
+            <h1 class="type-display" style="margin-bottom: 1.5rem; font-size: 2.5rem;">
+                Your health journey<br>
+                <span style="color: var(--green-600);">starts with one meal.</span>
+            </h1>
+            <p class="type-body" style="margin-bottom: 2.5rem;">
+                FoodBot makes it easy to plan, cook, and track — so you can focus on living, not stressing about what to
+                eat.
+            </p>
+
+            <!-- Stacked images -->
+            <div style="position: relative; max-width: 380px; margin: 0 auto;">
+                <img src="assets/images/breakfast-spread.png" alt="Healthy breakfast"
+                    style="width: 100%; border-radius: 1.5rem; box-shadow: 0 20px 60px rgba(0,0,0,0.12);">
+
+                <div class="card-glass"
+                    style="position: absolute; bottom: -0.75rem; right: -0.5rem; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="color: #F59E0B;">★★★★★</span>
+                    <span style="font-weight: 600; font-size: 0.75rem; color: var(--ink-primary);">4.9 rating</span>
+                </div>
+            </div>
+
+            <!-- Perks -->
+            <div class="grid grid-cols-3 gap-4" style="margin-top: 2.5rem;">
+                <div *ngFor="let p of [
+                    {icon:'✓', label:'Free Forever Plan'},
+                    {icon:'✓', label:'No Credit Card'},
+                    {icon:'✓', label:'Cancel Anytime'}
+                ]" class="flex items-center gap-1.5" style="font-size: 0.75rem; color: var(--ink-secondary);">
+                    <span
+                        style="width: 1.25rem; height: 1.25rem; border-radius: 50%; background: var(--green-50); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                            stroke="var(--green-600)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </span>
+                    {{p.label}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side: Register Form -->
+    <div class="flex items-center justify-center p-8 sm:p-16">
+        <div style="max-width: 26rem; width: 100%;" class="space-y-6">
+            <div class="lg:hidden flex items-center gap-2" style="margin-bottom: 1rem;" routerLink="/">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg"
+                    style="background: var(--green-500);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                        <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+                    </svg>
+                </div>
+                <span
+                    style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--ink-primary);">FoodBot</span>
+            </div>
+
+            <div>
+                <h2 class="type-heading" style="margin-bottom: 0.5rem;">Create your free account</h2>
+                <p class="type-body-s">Takes less than 30 seconds. Seriously.</p>
+                <p class="type-body-s" style="margin-top: 0.5rem;">FoodBot is built by <a href="https://scalefort.africa" target="_blank" rel="noreferrer" style="color: var(--green-600); font-weight: 700; text-decoration: none;">Scalefort</a>.</p>
+            </div>
+
+            <form class="space-y-4" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+                <div>
+                    <label class="form-label">Full Name</label>
+                    <input formControlName="fullName" type="text" class="form-input"
+                        placeholder="What should we call you?">
+                </div>
+                <div>
+                    <label class="form-label">Email Address</label>
+                    <input formControlName="email" type="email" class="form-input" placeholder="you@example.com">
+                </div>
+                <div>
+                    <label class="form-label">Password</label>
+                    <input formControlName="password" type="password" class="form-input" placeholder="8+ characters">
+                    <p class="form-helper">Must be at least 8 characters. We'll keep it safe. 🔒</p>
+                </div>
+
+
+                <button type="submit" [disabled]="loading || registerForm.invalid" class="btn-green w-full btn-lg"
+                    style="margin-top: 0.5rem;">
+                    <span *ngIf="!loading">Create My Free Account 🎉</span>
+                    <div *ngIf="loading"
+                        style="width: 1.5rem; height: 1.5rem; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite;">
+                    </div>
+                </button>
+
+                <p class="type-body-s" style="text-align: center;">
+                    By signing up, you agree to our
+                    <a routerLink="/legal" fragment="terms"
+                        style="color: var(--green-600); text-decoration: none; font-weight: 500;">Terms</a> and
+                    <a routerLink="/legal" fragment="privacy"
+                        style="color: var(--green-600); text-decoration: none; font-weight: 500;">Privacy Policy</a>.
+                </p>
+            </form>
+
+            <!-- Divider -->
+            <div class="flex items-center gap-4">
+                <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+                <span class="type-body-s">or sign up with</span>
+                <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+            </div>
+
+            <!-- Social login -->
+            <div class="grid grid-cols-2 gap-3">
+                <button type="button" class="btn-outline btn-sm" style="display: flex; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="18" height="18">
+                        <path
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+                            fill="#4285F4" />
+                        <path
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                            fill="#34A853" />
+                        <path
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                            fill="#FBBC05" />
+                        <path
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                            fill="#EA4335" />
+                    </svg>
+                    Google
+                </button>
+                <button type="button" class="btn-outline btn-sm" style="display: flex; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path
+                            d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+                    </svg>
+                    Apple
+                </button>
+            </div>
+
+            <div style="text-align: center; padding-top: 0.5rem;">
+                <p class="type-body-s">
+                    Already have an account?
+                    <a routerLink="/auth/login"
+                        style="font-weight: 700; color: var(--green-600); text-decoration: none; margin-left: 0.25rem;">Sign
+                        in →</a>
+                </p>
+                <p class="type-body-s" style="margin-top: 0.75rem;">
+                    Product home:
+                    <a href="https://foodbot.ng" target="_blank" rel="noreferrer" style="color: var(--green-600); font-weight: 700; text-decoration: none;">foodbot.ng</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>

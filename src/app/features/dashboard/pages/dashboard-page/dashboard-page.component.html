@@ -1,0 +1,395 @@
+<div class="dashboard-shell">
+    <div class="dashboard-page">
+
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <p class="type-overline dashboard-greeting">Your health snapshot</p>
+                <h1 class="type-heading">
+                    Welcome back, <span class="dashboard-user-name">{{ userName }}</span>
+                </h1>
+            </div>
+
+            <div class="flex items-center gap-3 flex-wrap md:justify-end">
+                <span class="badge-plan" [class.pro]="subscriptionTier === 'Pro'" [class.free]="subscriptionTier === 'Free'">
+                    {{ subscriptionTier }} Plan
+                </span>
+
+                <button
+                    type="button"
+                    class="dashboard-icon-button"
+                    [attr.title]="themeService.theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+                    (click)="themeService.toggleTheme()">
+                    <svg *ngIf="themeService.theme() === 'light'" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4" />
+                        <path d="M12 2v2" />
+                        <path d="M12 20v2" />
+                        <path d="m4.93 4.93 1.41 1.41" />
+                        <path d="m17.66 17.66 1.41 1.41" />
+                        <path d="M2 12h2" />
+                        <path d="M20 12h2" />
+                        <path d="m6.34 17.66-1.41 1.41" />
+                        <path d="m19.07 4.93-1.41 1.41" />
+                    </svg>
+                    <svg *ngIf="themeService.theme() === 'dark'" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9" />
+                    </svg>
+                </button>
+
+                <button
+                    type="button"
+                    class="dashboard-icon-button"
+                    title="Settings"
+                    (click)="settingsOpen = true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    </svg>
+                </button>
+
+                <button
+                    type="button"
+                    class="dashboard-icon-button dashboard-icon-button-danger"
+                    title="Logout"
+                    (click)="logout()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" x2="9" y1="12" y2="12" />
+                    </svg>
+                </button>
+
+                <a
+                    routerLink="/profile"
+                    id="go-to-profile-btn"
+                    class="dashboard-avatar">
+                    {{ userInitial }}
+                </a>
+            </div>
+        </header>
+
+        <fb-settings-panel *ngIf="settingsOpen" (close)="settingsOpen = false"></fb-settings-panel>
+
+        <app-feature-education-card *ngIf="!educationService.isDismissed('welcome_planner')"
+            title="Master the Meal Planner"
+            description="Drag, drop, and auto-generate shopping lists in seconds. Your nutrition plan, automated."
+            icon="MP"
+            (onDismiss)="educationService.dismiss('welcome_planner')">
+        </app-feature-education-card>
+
+        <section *ngIf="insightService.insights().length > 0" class="space-y-4">
+            <app-dashboard-insight-card *ngFor="let insight of insightService.insights()" [insight]="insight"
+                (onDismiss)="insightService.dismiss($event)">
+            </app-dashboard-insight-card>
+        </section>
+
+        <section *ngIf="recentBadges.length > 0" class="dashboard-badge-celebrations">
+            <div class="dashboard-badge-logo-strip" aria-label="Recently earned badges">
+                <button
+                    *ngFor="let badge of recentBadges"
+                    type="button"
+                    class="dashboard-badge-logo earned"
+                    [class.selected]="selectedBadge?.key === badge.key"
+                    [attr.title]="badge.name"
+                    [attr.aria-label]="badge.name"
+                    (click)="selectBadge(badge)">
+                    <img [src]="getBadgeImageUrl(badge)" [alt]="badge.name">
+                </button>
+            </div>
+
+            <div *ngIf="selectedBadge" class="dashboard-badge-note">
+                <div>
+                    <p class="type-overline">{{ selectedBadge.earned ? 'Badge earned' : 'Badge progress' }}</p>
+                    <h2 class="type-title">{{ selectedBadge.name }}</h2>
+                    <p class="type-body-s">{{ selectedBadge.description }}</p>
+                </div>
+                <button
+                    *ngIf="selectedBadge.earned && !selectedBadge.seen"
+                    type="button"
+                    class="dashboard-badge-dismiss"
+                    title="Dismiss badge"
+                    (click)="dismissBadge(selectedBadge)">
+                    <span aria-hidden="true">x</span>
+                </button>
+            </div>
+        </section>
+
+        <div *ngIf="!hasNutritionGoals" class="card dashboard-empty-state">
+            <div class="dashboard-empty-icon">GO</div>
+            <h3 class="type-title dashboard-empty-title">Set your daily targets</h3>
+            <p class="type-body-s dashboard-empty-copy">
+                Setting calorie and macro goals gives the dashboard something meaningful to measure you against.
+            </p>
+            <a routerLink="/profile" class="btn-green btn-sm dashboard-empty-action">
+                Complete My Profile
+            </a>
+        </div>
+
+        <div class="dashboard-stat-grid">
+            <article *ngFor="let stat of statCards" class="card-stat dashboard-stat-card" [appTooltip]="getTooltipContent(stat.label)">
+                <p class="dashboard-stat-kicker">{{ stat.label }}</p>
+                <p class="dashboard-stat-value">{{ stat.value }}</p>
+                <div class="dashboard-progress-track">
+                    <div class="dashboard-progress-fill" [style.width.%]="stat.progress"></div>
+                </div>
+                <p class="dashboard-stat-meta">{{ stat.meta }}</p>
+            </article>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <section class="card dashboard-panel xl:col-span-2">
+                <div class="dashboard-panel-header">
+                    <div>
+                        <p class="type-overline">Last 7 days</p>
+                        <h2 class="type-title">Calorie trend</h2>
+                    </div>
+                    <p class="type-body-s">Based on your nutrition logs</p>
+                </div>
+
+                <div class="dashboard-trend">
+                    <div *ngFor="let point of analytics?.weeklyTrend ?? []" class="dashboard-trend-item">
+                        <span class="dashboard-trend-value">{{ point.calories }}</span>
+                        <div class="dashboard-trend-bar-shell">
+                            <div class="dashboard-trend-bar" [style.height.%]="getTrendHeight(point.calories)"></div>
+                        </div>
+                        <span class="dashboard-trend-label">{{ point.label }}</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card dashboard-panel">
+                <div class="dashboard-panel-header">
+                    <div>
+                        <p class="type-overline">Momentum</p>
+                        <h2 class="type-title">This week</h2>
+                    </div>
+                </div>
+
+                <div class="dashboard-metric-list">
+                    <div class="dashboard-metric-row">
+                        <span class="dashboard-metric-label">Entries logged</span>
+                        <strong>{{ analytics?.overview?.entriesThisWeek ?? 0 }}</strong>
+                    </div>
+                    <div class="dashboard-metric-row">
+                        <span class="dashboard-metric-label">Days active</span>
+                        <strong>{{ analytics?.overview?.daysLoggedThisWeek ?? 0 }}</strong>
+                    </div>
+                    <div class="dashboard-metric-row">
+                        <span class="dashboard-metric-label">Exercise minutes</span>
+                        <strong>{{ analytics?.overview?.exerciseMinutesThisWeek ?? 0 }} min</strong>
+                    </div>
+                    <div class="dashboard-metric-row">
+                        <span class="dashboard-metric-label">Latest weight</span>
+                        <strong>{{ formatDecimal(analytics?.overview?.currentWeightKg) }} kg</strong>
+                    </div>
+                </div>
+
+                <p class="type-body-s dashboard-panel-note">{{ weightSummary }}</p>
+            </section>
+        </div>
+
+        <section class="card dashboard-panel dashboard-achievements-panel">
+            <div class="dashboard-panel-header">
+                <div>
+                    <p class="type-overline">Achievements</p>
+                    <h2 class="type-title">Badges in reach</h2>
+                </div>
+                <a routerLink="/profile" class="dashboard-link">View all</a>
+            </div>
+
+            <div *ngIf="nearestBadges.length > 0; else allBadgesEarned" class="dashboard-badge-logo-strip compact" aria-label="Badges in reach">
+                <button
+                    *ngFor="let badge of nearestBadges"
+                    type="button"
+                    class="dashboard-badge-logo locked"
+                    [class.selected]="selectedBadge?.key === badge.key"
+                    [attr.title]="badge.name + ' - ' + badge.progressCurrent + ' of ' + badge.progressTarget"
+                    [attr.aria-label]="badge.name"
+                    (click)="selectBadge(badge)">
+                    <img [src]="getBadgeImageUrl(badge)" [alt]="badge.name">
+                    <span>{{ badge.progressCurrent }}/{{ badge.progressTarget }}</span>
+                </button>
+            </div>
+
+            <div *ngIf="selectedBadge && !selectedBadge.earned" class="dashboard-badge-note inline">
+                <div>
+                    <h3 class="type-title">{{ selectedBadge.name }}</h3>
+                    <p class="type-body-s">{{ selectedBadge.description }}</p>
+                </div>
+            </div>
+
+            <ng-template #allBadgesEarned>
+                <p class="type-body-s dashboard-panel-note">
+                    Keep logging meals, water, plans, shopping, and lessons to collect new badges as they arrive.
+                </p>
+            </ng-template>
+        </section>
+
+        <div class="dashboard-summary-grid">
+            <section class="card dashboard-panel">
+                <div class="dashboard-panel-header">
+                    <div>
+                        <p class="type-overline">Meal planner</p>
+                        <h2 class="type-title">Weekly plan</h2>
+                    </div>
+                    <span class="dashboard-panel-tag">{{ mealPlanSourceLabel }}</span>
+                </div>
+
+                <p class="dashboard-summary-value">{{ analytics?.mealPlan?.averageDailyCalories ?? 0 }} kcal</p>
+                <p class="type-body-s">Average daily calories planned</p>
+                <p class="dashboard-panel-note">{{ planStatusCopy }}</p>
+                <div class="dashboard-mini-meta">
+                    <span>{{ analytics?.mealPlan?.averageDailyProteinG ?? 0 }} g avg protein</span>
+                    <span *ngIf="analytics?.mealPlan?.weekStart">Week of {{ analytics?.mealPlan?.weekStart | date:'MMM d' }}</span>
+                </div>
+            </section>
+
+            <section class="card dashboard-panel">
+                <div class="dashboard-panel-header">
+                    <div>
+                        <p class="type-overline">Shopping</p>
+                        <h2 class="type-title">List completion</h2>
+                    </div>
+                    <span class="dashboard-panel-tag">{{ analytics?.shopping?.completionPercent ?? 0 }}%</span>
+                </div>
+
+                <div class="dashboard-progress-track">
+                    <div class="dashboard-progress-fill" [style.width.%]="analytics?.shopping?.completionPercent ?? 0"></div>
+                </div>
+                <p class="dashboard-panel-note">{{ shoppingStatusCopy }}</p>
+                <div class="dashboard-mini-meta">
+                    <span>{{ analytics?.shopping?.totalItems ?? 0 }} total items</span>
+                    <span *ngIf="analytics?.shopping?.generatedAt">Generated {{ analytics?.shopping?.generatedAt | date:'MMM d' }}</span>
+                </div>
+            </section>
+
+            <section class="card dashboard-panel">
+                <div class="dashboard-panel-header">
+                    <div>
+                        <p class="type-overline">Learning</p>
+                        <h2 class="type-title">Course progress</h2>
+                    </div>
+                    <span class="dashboard-panel-tag">{{ analytics?.learning?.completionPercent ?? 0 }}%</span>
+                </div>
+
+                <div class="dashboard-progress-track">
+                    <div class="dashboard-progress-fill" [style.width.%]="analytics?.learning?.completionPercent ?? 0"></div>
+                </div>
+                <p class="dashboard-panel-note">{{ learningStatusCopy }}</p>
+                <div class="dashboard-mini-meta">
+                    <span>{{ analytics?.learning?.accessibleCourses ?? 0 }} courses available</span>
+                    <span *ngIf="analytics?.learning?.lastCompletedLessonAt">Last lesson {{ analytics?.learning?.lastCompletedLessonAt | date:'MMM d' }}</span>
+                </div>
+            </section>
+
+            <section class="card dashboard-panel">
+                <div class="dashboard-panel-header">
+                    <div>
+                        <p class="type-overline">Subscription</p>
+                        <h2 class="type-title">{{ analytics?.subscription?.plan || subscriptionTier }}</h2>
+                    </div>
+                    <span class="dashboard-panel-tag">{{ analytics?.subscription?.status || 'active' }}</span>
+                </div>
+
+                <p class="dashboard-summary-value">{{ analytics?.subscription?.plan || subscriptionTier }}</p>
+                <p class="type-body-s">Current plan and billing status</p>
+                <div class="dashboard-mini-meta">
+                    <span>Status: {{ analytics?.subscription?.status || 'active' }}</span>
+                    <span *ngIf="analytics?.subscription?.currentPeriodEnd">Renews {{ analytics?.subscription?.currentPeriodEnd | date:'MMM d, y' }}</span>
+                </div>
+            </section>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <section class="card dashboard-panel xl:col-span-2">
+                <div class="dashboard-panel-header">
+                    <div>
+                        <p class="type-overline">Recent logs</p>
+                        <h2 class="type-title">Meals you logged</h2>
+                    </div>
+                    <a routerLink="/nutrition" class="dashboard-link">Open nutrition</a>
+                </div>
+
+                <div *ngIf="(analytics?.recentMeals?.length ?? 0) > 0; else noMeals" class="dashboard-list">
+                    <div *ngFor="let meal of analytics?.recentMeals" class="dashboard-list-row">
+                        <div>
+                            <p class="dashboard-list-title">{{ meal.name }}</p>
+                            <p class="type-body-s">{{ meal.loggedAt | date:'EEE, MMM d · h:mm a' }}</p>
+                        </div>
+                        <div class="dashboard-list-metrics">
+                            <span>{{ meal.calories }} kcal</span>
+                            <span>{{ formatDecimal(meal.proteinG) }} g protein</span>
+                        </div>
+                    </div>
+                </div>
+
+                <ng-template #noMeals>
+                    <div class="dashboard-placeholder">
+                        <p class="type-body-s">Start logging meals to populate your recent activity and trend cards.</p>
+                    </div>
+                </ng-template>
+            </section>
+
+            <section class="space-y-4">
+                <h2 class="type-title">Quick actions</h2>
+                <a *ngFor="let action of quickActions" [routerLink]="action.link" id="quick-action-{{action.id}}"
+                    class="card card-hover dashboard-action-card">
+                    <div class="dashboard-action-kicker">{{ action.kicker }}</div>
+                    <div class="dashboard-action-copy">
+                        <p class="dashboard-list-title">{{ action.label }}</p>
+                        <p class="type-body-s">{{ action.desc }}</p>
+                    </div>
+                    <svg class="dashboard-action-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </a>
+            </section>
+        </div>
+
+        <section *ngIf="learningService.courses().length > 0" class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="type-title">FoodBot University</h2>
+                <a routerLink="/learn/courses" class="dashboard-link">See all courses</a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div *ngFor="let course of learningService.courses().slice(0, 2)"
+                    class="card card-hover dashboard-course-card"
+                    [routerLink]="['/learn/courses', course.slug]">
+                    <div class="dashboard-course-badge">Course</div>
+                    <div class="space-y-2 grow">
+                        <div class="flex items-center justify-between gap-4">
+                            <h3 class="dashboard-list-title">{{ course.title }}</h3>
+                            <span class="type-overline">{{ course.lessonCount }} lessons</span>
+                        </div>
+                        <p class="type-body-s line-clamp-2">{{ course.description }}</p>
+                        <div class="dashboard-progress-inline">
+                            <div class="dashboard-progress-track">
+                                <div class="dashboard-progress-fill"
+                                    [style.width.%]="(course.completedCount / course.lessonCount * 100)"></div>
+                            </div>
+                            <span class="dashboard-progress-caption">
+                                {{ (course.completedCount / course.lessonCount * 100) | number:'1.0-0' }}%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div *ngIf="subscriptionTier === 'Free'"
+            class="card card-accent flex flex-col md:flex-row items-center justify-between gap-6 dashboard-upgrade-card">
+            <div>
+                <h3 class="type-title dashboard-upgrade-title">Unlock deeper analytics and premium coaching</h3>
+                <p class="type-body-s">Upgrade to Pro to keep AI planning, premium coaching, and your advanced tools unlocked.</p>
+            </div>
+            <a routerLink="/pricing" id="dashboard-upgrade-btn" class="btn-green btn-sm shrink-0">Upgrade to Pro</a>
+        </div>
+    </div>
+</div>

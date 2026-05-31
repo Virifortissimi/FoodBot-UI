@@ -1,0 +1,83 @@
+<footer style="background: var(--surface-base); border-top: 1px solid var(--border-subtle); padding: 5rem 0 3rem;">
+  <div style="max-width: 1280px; margin: 0 auto; padding: 0 2rem;">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+      <!-- Brand -->
+      <div class="space-y-5">
+        <div class="flex items-center gap-2">
+          <img
+            src="https://res.cloudinary.com/virifortissimi/image/upload/v1780138048/Foodbot/logo-colored.png"
+            alt="FoodBot"
+            style="display: block; height: 2.25rem; width: auto;">
+          <div>
+            <span class="type-body-s" style="display: block;">by <a href="https://scalefort.africa" target="_blank" rel="noreferrer" style="color: var(--green-600); text-decoration: none; font-weight: 700;">Scalefort</a></span>
+          </div>
+        </div>
+        <p class="type-body-s" style="max-width: 260px;">
+          FoodBot is a Scalefort innovation for practical nutrition. Plan meals, track health, and eat better with science-backed guidance.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="https://foodbot.ng" target="_blank" rel="noreferrer" class="type-body-s" style="text-decoration: none; color: var(--green-600); font-weight: 700;">foodbot.ng</a>
+          <a href="https://scalefort.africa" target="_blank" rel="noreferrer" class="type-body-s" style="text-decoration: none; color: var(--green-600); font-weight: 700;">scalefort.africa</a>
+        </div>
+        <!-- Newsletter -->
+        <div style="padding-top: 0.5rem;">
+          <p class="form-label">Join our newsletter</p>
+          <div class="flex gap-2">
+            <input [(ngModel)]="newsletterEmail" type="email" placeholder="Email address" class="form-input" style="height: 42px; flex: 1;">
+            <button class="btn-green btn-sm" type="button" [disabled]="subscribing || !newsletterEmail.trim()" (click)="joinNewsletter()">
+              {{ subscribing ? 'Joining...' : 'Join' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product -->
+      <div class="space-y-5">
+        <h4 style="font-family: var(--font-sans); font-weight: 600; color: var(--ink-primary); font-size: 0.875rem;">
+          Product</h4>
+        <ul class="space-y-3" style="list-style: none; padding: 0;">
+          <li><a routerLink="/meal-planner" class="type-body-s"
+              style="text-decoration: none; transition: color 130ms;">Meal Planner</a></li>
+          <li><a routerLink="/recipes" class="type-body-s" style="text-decoration: none;">Recipes</a></li>
+          <li><a routerLink="/recipe-chat" class="type-body-s" style="text-decoration: none;">Recipe Chat</a></li>
+          <li><a routerLink="/shopping-list" class="type-body-s" style="text-decoration: none;">Shopping List</a></li>
+          <li><a routerLink="/nutrition" class="type-body-s" style="text-decoration: none;">Health Tracking</a></li>
+        </ul>
+      </div>
+
+      <!-- Company -->
+      <div class="space-y-5">
+        <h4 style="font-family: var(--font-sans); font-weight: 600; color: var(--ink-primary); font-size: 0.875rem;">
+          Company</h4>
+        <ul class="space-y-3" style="list-style: none; padding: 0;">
+          <li><a routerLink="/about" class="type-body-s" style="text-decoration: none;">About Us</a></li>
+          <li><a routerLink="/careers" class="type-body-s" style="text-decoration: none;">Careers</a></li>
+          <li><a routerLink="/contact" class="type-body-s" style="text-decoration: none;">Contact</a></li>
+        </ul>
+      </div>
+
+      <!-- Legal -->
+      <div class="space-y-5">
+        <h4 style="font-family: var(--font-sans); font-weight: 600; color: var(--ink-primary); font-size: 0.875rem;">
+          Legal</h4>
+        <ul class="space-y-3" style="list-style: none; padding: 0;">
+          <li><a routerLink="/legal" fragment="privacy" class="type-body-s" style="text-decoration: none;">Privacy
+              Policy</a></li>
+          <li><a routerLink="/legal" fragment="terms" class="type-body-s" style="text-decoration: none;">Terms of
+              Service</a></li>
+          <li><a routerLink="/help" class="type-body-s" style="text-decoration: none;">Help Center</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4"
+      style="border-top: 1px solid var(--border-subtle); margin-top: 4rem; padding-top: 2rem;">
+      <p class="type-body-s">&copy; 2026 FoodBot by Scalefort. All rights reserved.</p>
+      <div class="flex gap-6">
+        <a href="#" class="type-body-s" style="text-decoration: none;">Instagram</a>
+        <a href="#" class="type-body-s" style="text-decoration: none;">Twitter</a>
+        <a href="#" class="type-body-s" style="text-decoration: none;">YouTube</a>
+      </div>
+    </div>
+  </div>
+</footer>
