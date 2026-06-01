@@ -61,7 +61,7 @@ export class HomePageComponent implements OnInit, AfterViewInit {
   get recipeChatCta() {
     return this.authService.token()
       ? { label: 'Open Recipe Chat', link: '/recipe-chat' }
-      : { label: 'Try Chef Amara', link: '/recipe-chat' };
+      : { label: 'Try Chef Kora', link: '/recipe-chat' };
   }
 
   get mealPlanCta() {
@@ -73,7 +73,7 @@ export class HomePageComponent implements OnInit, AfterViewInit {
   get africanChefCta() {
     return this.authService.token()
       ? { label: 'Open African Recipe Chat', link: '/recipe-chat' }
-      : { label: 'Try Chef Amara', link: '/recipe-chat' };
+      : { label: 'Try Chef Kora', link: '/recipe-chat' };
   }
 
   get finalCta() {

@@ -9,6 +9,8 @@ export interface User {
   id: string;
   email: string;
   fullName?: string;
+  firstName?: string;
+  lastName?: string;
   onboardingCompleted: boolean;
 }
 
@@ -16,6 +18,11 @@ export interface AuthResponse {
   accessToken: string;
   accessTokenExpiresAtUtc: string;
   user: User;
+}
+
+export interface AuthRegistrationPendingResponse {
+  requiresEmailVerification: boolean;
+  email: string;
 }
 
 interface AuthPublicKeyResponse {
@@ -62,7 +69,7 @@ export class AuthService {
     this.initialized.set(true);
   }
 
-  async signIn(email: string, password?: string) {
+  async signIn(email: string, password?: string, retryWithFreshKey = true): Promise<AuthResponse> {
     try {
       const payload = await this.buildEncryptedLoginPayload(email, password || '');
       const res = await firstValueFrom(this.http.post<any>(
@@ -77,13 +84,59 @@ export class AuthService {
 
       return this.handleAuth(res.data as AuthResponse);
     } catch (err) {
+      const message = this.extractErrorMessage(err);
+      if (retryWithFreshKey && this.isStaleEncryptedPayloadError(message)) {
+        this.clearCachedPublicKey();
+        return this.signIn(email, password, false);
+      }
+
+      throw new Error(message);
+    }
+  }
+
+  async resendVerification(email: string) {
+    try {
+      const res = await firstValueFrom(this.http.post<any>(
+        `${this.apiUrl}/resend-verification`,
+        { email }
+      ));
+
+      if (!res?.success) {
+        throw new Error(res?.errors?.[0] || 'Unable to send verification email.');
+      }
+
+      return true;
+    } catch (err) {
       throw new Error(this.extractErrorMessage(err));
     }
   }
 
-  async signUp(email: string, fullName: string, password?: string) {
+  async requestPasswordReset(email: string) {
     try {
-      const payload = await this.buildEncryptedRegisterPayload(email, fullName, password || '');
+      const res = await firstValueFrom(this.http.post<any>(
+        `${this.apiUrl}/forgot-password`,
+        { email }
+      ));
+
+      if (!res?.success) {
+        throw new Error(res?.errors?.[0] || 'Unable to send password reset email.');
+      }
+
+      return true;
+    } catch (err) {
+      throw new Error(this.extractErrorMessage(err));
+    }
+  }
+
+  async signUp(
+    email: string,
+    firstName: string,
+    lastName: string,
+    password?: string,
+    retryWithFreshKey = true
+  ): Promise<AuthResponse | AuthRegistrationPendingResponse> {
+    try {
+      const payload = await this.buildEncryptedRegisterPayload(email, firstName, lastName, password || '');
       const res = await firstValueFrom(this.http.post<any>(
         `${this.apiUrl}/register`,
         payload,
@@ -94,9 +147,19 @@ export class AuthService {
         throw new Error(res?.errors?.[0] || 'Failed to create account.');
       }
 
+      if (res.data?.requiresEmailVerification) {
+        return res.data as AuthRegistrationPendingResponse;
+      }
+
       return this.handleAuth(res.data as AuthResponse);
     } catch (err) {
-      throw new Error(this.extractErrorMessage(err));
+      const message = this.extractErrorMessage(err);
+      if (retryWithFreshKey && this.isStaleEncryptedPayloadError(message)) {
+        this.clearCachedPublicKey();
+        return this.signUp(email, firstName, lastName, password, false);
+      }
+
+      throw new Error(message);
     }
   }
 
@@ -350,17 +413,26 @@ export class AuthService {
     };
   }
 
-  private async buildEncryptedRegisterPayload(email: string, fullName: string, password: string) {
+  private async buildEncryptedRegisterPayload(email: string, firstName: string, lastName: string, password: string) {
     const publicKey = await this.getAuthPublicKey();
     const timestampUnixSeconds = Math.floor(Date.now() / 1000);
     const nonce = this.generateNonce();
+    const normalizedFirstName = firstName?.trim() || '';
+    const normalizedLastName = lastName?.trim() || '';
+    const fullName = `${normalizedFirstName} ${normalizedLastName}`.trim();
 
     return {
       keyId: publicKey.keyId,
       emailCiphertext: await this.encryptValue(email, publicKey.publicKeySpkiBase64),
       passwordCiphertext: await this.encryptValue(password, publicKey.publicKeySpkiBase64),
+      firstNameCiphertext: normalizedFirstName
+        ? await this.encryptValue(normalizedFirstName, publicKey.publicKeySpkiBase64)
+        : null,
+      lastNameCiphertext: normalizedLastName
+        ? await this.encryptValue(normalizedLastName, publicKey.publicKeySpkiBase64)
+        : null,
       fullNameCiphertext: fullName?.trim()
-        ? await this.encryptValue(fullName.trim(), publicKey.publicKeySpkiBase64)
+        ? await this.encryptValue(fullName, publicKey.publicKeySpkiBase64)
         : null,
       timestampUnixSeconds,
       nonce
@@ -399,6 +471,19 @@ export class AuthService {
     }
 
     return expiresAt <= Date.now() + 60_000;
+  }
+
+  private clearCachedPublicKey() {
+    this.cachedPublicKey = null;
+    this.publicKeyPromise = null;
+  }
+
+  private isStaleEncryptedPayloadError(message: string): boolean {
+    const normalized = (message || '').toLowerCase();
+    return normalized.includes('invalid login payload')
+      || normalized.includes('invalid registration payload')
+      || normalized.includes('auth payload key')
+      || normalized.includes('unable to decrypt auth payload');
   }
 
   private async encryptValue(value: string, publicKeySpkiBase64: string): Promise<string> {

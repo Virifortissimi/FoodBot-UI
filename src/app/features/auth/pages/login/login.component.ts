@@ -31,6 +31,19 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
+    const email = this.route.snapshot.queryParamMap.get('email');
+    if (email) {
+      this.loginForm.patchValue({ email });
+    }
+
+    if (this.route.snapshot.queryParamMap.get('verified') === '1') {
+      this.toastService.success('Email verified successfully. Please sign in to continue.');
+    } else if (this.route.snapshot.queryParamMap.get('verify') === '1') {
+      this.toastService.info('Check your email to verify your FoodBot account.', 9000);
+    } else if (this.route.snapshot.queryParamMap.get('passwordReset') === '1') {
+      this.toastService.success('Password updated. Please sign in with your new password.');
+    }
+
     this.handleSupabaseCallback();
   }
 
@@ -43,9 +56,47 @@ export class LoginComponent implements OnInit {
       this.toastService.success('Welcome back!');
       this.router.navigateByUrl(this.resolvePostAuthRedirect());
     } catch (error: any) {
-      this.toastService.error(error.message || 'Invalid email or password.');
+      const message = error.message || 'Invalid email or password.';
+      if (message.toLowerCase().includes('verify your email')) {
+        this.toastService.info(message, 9000);
+        await this.resendVerification(false);
+      } else {
+        this.toastService.error(message);
+      }
     } finally {
       this.loading = false;
+    }
+  }
+
+  async onForgotPassword(event: Event) {
+    event.preventDefault();
+    const email = (this.loginForm.value.email || '').trim();
+    if (!email) {
+      this.toastService.info('Enter your email address first.');
+      return;
+    }
+
+    try {
+      await this.authService.requestPasswordReset(email);
+      this.toastService.info('If that email exists, a password reset link has been sent.', 9000);
+    } catch (error: any) {
+      this.toastService.error(error?.message || 'Unable to send password reset email.');
+    }
+  }
+
+  private async resendVerification(showSuccess = true) {
+    const email = (this.loginForm.value.email || '').trim();
+    if (!email) {
+      return;
+    }
+
+    try {
+      await this.authService.resendVerification(email);
+      if (showSuccess) {
+        this.toastService.info('Verification email sent. Check your inbox.', 9000);
+      }
+    } catch {
+      // Login already displayed the primary verification message.
     }
   }
 

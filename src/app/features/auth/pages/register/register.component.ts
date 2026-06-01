@@ -25,7 +25,8 @@ export class RegisterComponent {
   ) {
     this.registerForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      fullName: ['', [Validators.required]],
+      firstName: ['', [Validators.required]],
+      lastName: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(8)]]
     });
   }
@@ -35,11 +36,25 @@ export class RegisterComponent {
 
     this.loading = true;
     try {
-      await this.authService.signUp(
+      const result = await this.authService.signUp(
         this.registerForm.value.email,
-        this.registerForm.value.fullName,
+        this.registerForm.value.firstName,
+        this.registerForm.value.lastName,
         this.registerForm.value.password
       );
+      if ('requiresEmailVerification' in result && result.requiresEmailVerification) {
+        const pendingResult = result as unknown as { requiresEmailVerification: boolean; email: string };
+        this.toastService.info('Account created. Check your email to verify your address, then sign in.', 9000);
+        this.router.navigate(['/auth/login'], {
+          queryParams: {
+            ...this.route.snapshot.queryParams,
+            email: pendingResult.email,
+            verify: '1'
+          }
+        });
+        return;
+      }
+
       this.toastService.success('Account created successfully! Welcome to FoodBot.');
       this.router.navigateByUrl(this.resolvePostAuthRedirect());
     } catch (error: any) {
@@ -48,7 +63,7 @@ export class RegisterComponent {
       if (normalized.includes('already registered') || normalized.includes('already verified')) {
         this.toastService.info('This email is already verified. Please sign in to continue.', 7000);
         this.router.navigate(['/auth/login'], { queryParams: this.route.snapshot.queryParams });
-      } else if (normalized.includes('verify your email')) {
+      } else if (normalized.includes('verify your email') || normalized.includes('verify your address')) {
         this.toastService.info(message, 7000);
         this.router.navigate(['/auth/login'], { queryParams: this.route.snapshot.queryParams });
       } else {
@@ -68,4 +83,5 @@ export class RegisterComponent {
 
     return redirect;
   }
+
 }

@@ -61,7 +61,7 @@ export class RecipeChatPageComponent implements OnInit, OnDestroy, AfterViewChec
         this.chatService.startConnection();
 
         // Listen for connection status if service had it, but for now just a toast on start
-        this.toastService.info('Connecting to Chef Amara...', 2000);
+        this.toastService.info('Connecting to Chef Kora...', 2000);
     }
 
     ngOnDestroy() {

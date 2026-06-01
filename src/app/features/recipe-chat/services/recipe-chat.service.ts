@@ -73,7 +73,7 @@ export class RecipeChatService {
                 const normalizedRecipe = this.normalizeRecipe(recipe);
                 void this.queueAssistantRender(() => {
                     this.messages.update(prev => [...prev, {
-                        sender: 'Chef Amara',
+                        sender: 'Chef Kora',
                         content: `I found a great ${normalizedRecipe.cuisine} recipe for you: ${normalizedRecipe.name}!`,
                         recipe: normalizedRecipe
                     }]);
@@ -88,12 +88,12 @@ export class RecipeChatService {
             if (this.hubConnection) {
                 await this.hubConnection.start();
                 this.isConnected.set(true);
-                this.toastService.success('Connected to Chef Amara.');
+                this.toastService.success('Connected to Chef Kora.');
                 console.log('SignalR Connection started');
             }
         } catch (err) {
             console.error('Error while starting hub connection: ' + err);
-            this.toastService.error('Disconnected from Chef Amara. Reconnecting...');
+            this.toastService.error('Disconnected from Chef Kora. Reconnecting...');
             setTimeout(() => this.startConnection(), 5000);
         }
     }

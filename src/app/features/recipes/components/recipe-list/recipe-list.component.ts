@@ -88,8 +88,8 @@ type RecipeViewMode = 'cards' | 'list' | 'maze' | 'compact' | 'bento' | 'split';
           <div class="flex flex-col items-center justify-center text-center" style="padding: 5rem 2rem;">
             <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
             <h2 class="type-heading" style="margin-bottom: 0.5rem;">No recipes yet</h2>
-            <p class="type-body" style="margin-bottom: 2rem;">Recipes will appear here as they're added. Try Chef Amara in the meantime!</p>
-            <a routerLink="/recipe-chat" class="btn-green">Ask Chef Amara</a>
+            <p class="type-body" style="margin-bottom: 2rem;">Recipes will appear here as they're added. Try Chef Kora in the meantime!</p>
+            <a routerLink="/recipe-chat" class="btn-green">Ask Chef Kora</a>
           </div>
         } @else {
           @if (viewMode() === 'cards') {
