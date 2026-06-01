@@ -46,7 +46,11 @@ export class ProfilePageComponent implements OnInit {
     subscription = {
         tier: 'Free',
         isActive: false,
-        renewalDate: null as string | null
+        renewalDate: null as string | null,
+        endsAt: null as string | null,
+        status: 'active',
+        cancelAtPeriodEnd: false,
+        billingWarning: false
     };
 
     profileForm: ProfileForm = {
@@ -149,7 +153,11 @@ export class ProfilePageComponent implements OnInit {
                 this.subscription = {
                     tier: res.data.tier || 'Free',
                     isActive: !!res.data.isActive,
-                    renewalDate: res.data.renewalDate || null
+                    renewalDate: res.data.renewalDate || null,
+                    endsAt: res.data.endsAt || null,
+                    status: res.data.status || 'active',
+                    cancelAtPeriodEnd: !!res.data.cancelAtPeriodEnd,
+                    billingWarning: !!res.data.billingWarning
                 };
             }
         });
@@ -226,6 +234,26 @@ export class ProfilePageComponent implements OnInit {
 
     private get normalizedSubscriptionTier(): string {
         return (this.subscription.tier || 'Free').trim().toLowerCase();
+    }
+
+    get subscriptionDateLabel(): string | null {
+        if (this.subscription.billingWarning && this.subscription.renewalDate) {
+            return 'Paid access ends';
+        }
+
+        if (this.subscription.endsAt) {
+            return 'Ends on';
+        }
+
+        if (this.subscription.renewalDate) {
+            return 'Renews on';
+        }
+
+        return null;
+    }
+
+    get subscriptionDateValue(): string | null {
+        return this.subscription.endsAt || this.subscription.renewalDate;
     }
 
     badgePercent(badge: BadgeProgress): number {

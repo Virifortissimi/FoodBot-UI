@@ -110,8 +110,11 @@
                     <h2 class="type-title">Subscription</h2>
                     <p class="type-body-s" style="margin-top: 0.25rem;">Current plan: <span
                             style="font-weight: 600; color: var(--green-600);">{{ subscription.tier | titlecase }}</span></p>
-                    <p *ngIf="subscription.renewalDate" class="type-body-s" style="margin-top: 0.125rem;">
-                        Renews on {{ subscription.renewalDate | date:'mediumDate' }}
+                    <p *ngIf="subscriptionDateLabel && subscriptionDateValue" class="type-body-s" style="margin-top: 0.125rem;">
+                        {{ subscriptionDateLabel }} {{ subscriptionDateValue | date:'mediumDate' }}
+                    </p>
+                    <p *ngIf="subscription.billingWarning" class="type-body-s" style="margin-top: 0.25rem; color: #b45309; font-weight: 600;">
+                        Payment issue. Update your payment method to keep your plan active.
                     </p>
                 </div>
                 <div class="profile-subscription-actions">
