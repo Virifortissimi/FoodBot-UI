@@ -76,7 +76,8 @@
             <div class="hero-visual relative hidden lg:block" style="min-height: 500px;">
                 <!-- Main food image -->
                 <div class="float-soft" style="position: relative; z-index: 1;">
-                    <img src="assets/images/hero-bowl.png" alt="Colourful healthy meal bowl"
+                    <img src="assets/images/optimized/hero-bowl.jpg" alt="Colourful healthy meal bowl" width="640" height="640"
+                        loading="eager" fetchpriority="high" decoding="async"
                         style="width: 100%; max-width: 480px; border-radius: 2rem; box-shadow: 0 24px 64px rgba(0,0,0,0.12); display: block; margin-left: auto;">
                 </div>
 
@@ -175,7 +176,8 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <!-- Image -->
             <div fbReveal="left" style="position: relative;">
-                <img src="assets/images/couple-cooking.png" alt="Couple cooking together"
+                <img src="assets/images/optimized/couple-cooking.jpg" alt="Couple cooking together" width="640" height="640"
+                    loading="lazy" decoding="async"
                     style="width: 100%; border-radius: 1.5rem; box-shadow: 0 16px 48px rgba(0,0,0,0.1);">
                 <!-- Floating badge -->
                 <div class="card-glass animate-bounce-slow"
@@ -245,15 +247,15 @@
     <div
         style="display: flex; gap: 1.25rem; padding: 0 2rem; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
         <div *ngFor="let img of [
-            {src: 'assets/images/hero-bowl.png', label: 'Power Bowl'},
-            {src: 'assets/images/african-dish.png', label: 'Nigerian Jollof'},
-            {src: 'assets/images/breakfast-spread.png', label: 'Sunday Brunch'},
-            {src: 'assets/images/meal-prep.png', label: 'Weekly Meal Prep'},
-            {src: 'assets/images/hero-bowl.png', label: 'Green Goodness'},
-            {src: 'assets/images/african-dish.png', label: 'West African Feast'}
+            {src: 'assets/images/optimized/hero-bowl.jpg', label: 'Power Bowl'},
+            {src: 'assets/images/optimized/african-dish.jpg', label: 'Nigerian Jollof'},
+            {src: 'assets/images/optimized/breakfast-spread.jpg', label: 'Sunday Brunch'},
+            {src: 'assets/images/optimized/meal-prep.jpg', label: 'Weekly Meal Prep'},
+            {src: 'assets/images/optimized/hero-bowl.jpg', label: 'Green Goodness'},
+            {src: 'assets/images/optimized/african-dish.jpg', label: 'West African Feast'}
         ]" class="food-gallery-item"
             style="flex: 0 0 auto; scroll-snap-align: start; position: relative; border-radius: 1.25rem; overflow: hidden; width: 280px; height: 280px; cursor: pointer;">
-            <img [src]="img.src" [alt]="img.label"
+            <img [src]="img.src" [alt]="img.label" width="280" height="280" loading="lazy" decoding="async"
                 style="width: 100%; height: 100%; object-fit: cover; display: block;">
             <div
                 style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.65), transparent); padding: 1.5rem 1rem 0.75rem;">
@@ -331,7 +333,8 @@
 
             <!-- Image -->
             <div fbReveal="right" class="relative order-1 lg:order-2">
-                <img src="assets/images/african-dish.png" alt="Nigerian Jollof rice with plantain"
+                <img src="assets/images/optimized/african-dish.jpg" alt="Nigerian Jollof rice with plantain" width="640" height="640"
+                    loading="lazy" decoding="async"
                     style="width: 100%; border-radius: 1.5rem; box-shadow: 0 16px 48px rgba(0,0,0,0.1);">
                 <div class="card-glass"
                     style="position: absolute; top: -0.75rem; left: -0.75rem; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -395,7 +398,8 @@
     <div style="max-width: 1280px; margin: 0 auto; padding: 0 2rem;">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div fbReveal="left" style="position: relative;">
-                <img src="assets/images/meal-prep.png" alt="Weekly meal prep containers"
+                <img src="assets/images/optimized/meal-prep.jpg" alt="Weekly meal prep containers" width="640" height="640"
+                    loading="lazy" decoding="async"
                     style="width: 100%; border-radius: 1.5rem; box-shadow: 0 16px 48px rgba(0,0,0,0.1);">
                 <div class="card-glass animate-bounce-slow"
                     style="position: absolute; bottom: -0.5rem; left: -0.5rem; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -481,7 +485,7 @@
             </div>
 
             <div fbReveal="right" class="mobile-mockup-stage">
-                <img src="assets/images/mobile-app-mockups.png"
+                <img src="assets/images/mobile-app-mockups.png" width="1440" height="960" loading="lazy" decoding="async"
                     alt="FoodBot Android and iOS app mockups"
                     class="mobile-mockup-image">
             </div>
@@ -533,7 +537,8 @@
                 <p class="type-body-s">— Amara, Lagos 🇳🇬</p>
             </div>
             <div fbReveal="up">
-                <img src="assets/images/happy-user.png" alt="Happy FoodBot user"
+                <img src="assets/images/optimized/happy-user.jpg" alt="Happy FoodBot user" width="640" height="640"
+                    loading="lazy" decoding="async"
                     style="width: 100%; max-width: 320px; border-radius: 1.5rem; box-shadow: 0 12px 32px rgba(0,0,0,0.08); display: block; margin: 0 auto;">
             </div>
             <div fbReveal="right" class="space-y-2 text-center md:text-right">

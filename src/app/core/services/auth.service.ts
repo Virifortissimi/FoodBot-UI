@@ -62,11 +62,20 @@ export class AuthService {
     }
 
     if (!isPlatformBrowser(this.platformId)) {
+      this.initialized.set(true);
       return;
     }
 
-    await this.refreshSession(true);
-    this.initialized.set(true);
+    if (!this.sessionHint()) {
+      this.initialized.set(true);
+      return;
+    }
+
+    try {
+      await this.refreshSession(true);
+    } finally {
+      this.initialized.set(true);
+    }
   }
 
   async signIn(email: string, password?: string, retryWithFreshKey = true): Promise<AuthResponse> {
