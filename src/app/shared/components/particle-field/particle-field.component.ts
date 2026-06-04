@@ -37,6 +37,7 @@ export class ParticleFieldComponent implements AfterViewInit, OnDestroy {
 
     private particles: Particle[] = [];
     private raf = 0;
+    private animationTimer = 0;
     private ro!: ResizeObserver;
 
     // Colour palettes per variant
@@ -68,12 +69,20 @@ export class ParticleFieldComponent implements AfterViewInit, OnDestroy {
             return;
         }
 
+        if (window.matchMedia('(max-width: 767px)').matches) {
+            canvas.style.opacity = '0.12';
+            this.drawStaticSnapshot(canvas);
+            return;
+        }
+
         this.ro = new ResizeObserver(() => this.resize(canvas));
         this.ro.observe(canvas.parentElement!);
         this.resize(canvas);
 
         // Run outside Angular change detection — critical for performance
-        this.zone.runOutsideAngular(() => this.loop(canvas));
+        this.animationTimer = window.setTimeout(() => {
+            this.zone.runOutsideAngular(() => this.loop(canvas));
+        }, 2500);
     }
 
     private resize(canvas: HTMLCanvasElement) {
@@ -176,6 +185,8 @@ export class ParticleFieldComponent implements AfterViewInit, OnDestroy {
 
         canvas.width = w * dpr;
         canvas.height = h * dpr;
+        canvas.style.width = `${w}px`;
+        canvas.style.height = `${h}px`;
         const ctx = canvas.getContext('2d')!;
         ctx.scale(dpr, dpr);
         this.initParticles(w, h);
@@ -191,6 +202,7 @@ export class ParticleFieldComponent implements AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        if (this.animationTimer) window.clearTimeout(this.animationTimer);
         if (this.raf) cancelAnimationFrame(this.raf);
         this.ro?.disconnect();
     }

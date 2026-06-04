@@ -23,6 +23,7 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
+              "src/runtime-config.js",
               "src/manifest.webmanifest"
             ],
             "styles": [
@@ -37,6 +38,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -95,6 +102,7 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
+              "src/runtime-config.js",
               "src/manifest.webmanifest"
             ],
             "styles": [

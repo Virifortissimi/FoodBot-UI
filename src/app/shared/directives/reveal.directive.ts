@@ -28,6 +28,7 @@ export class RevealDirective implements OnInit, OnDestroy {
     ngOnInit() {
         if (!isPlatformBrowser(this.platformId)) return;
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (window.matchMedia('(max-width: 767px)').matches) return;
 
         const el = this.el.nativeElement as HTMLElement;
         const start = this.starts[this.variant];

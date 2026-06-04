@@ -282,7 +282,8 @@
                 {n:'03', icon:'🥗', title:'Cook, eat, enjoy', desc:'Follow the simple recipes, log your meals with one tap, and watch your nutrition goals come to life. No spreadsheets, no guilt — just good food.'}
             ]" fbReveal="up" class="card relative text-center" style="padding: 2.5rem 2rem;">
                 <span
-                    style="font-family: var(--font-display); font-size: 5rem; font-weight: 900; color: var(--border-faint); position: absolute; top: 0.5rem; right: 1.25rem; user-select: none; line-height: 1;">{{step.n}}</span>
+                    aria-hidden="true"
+                    style="font-family: var(--font-display); font-size: 5rem; font-weight: 900; color: var(--step-watermark); position: absolute; top: 0.5rem; right: 1.25rem; user-select: none; line-height: 1;">{{step.n}}</span>
                 <div class="feature-icon-wrap w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto"
                     style="background: var(--green-50); margin-bottom: 1.25rem;">
                     {{step.icon}}

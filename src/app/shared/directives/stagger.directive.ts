@@ -1,4 +1,5 @@
-import { Directive, Input, ElementRef, AfterViewInit } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Directive, Input, ElementRef, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
 
 @Directive({ selector: '[fbStagger]', standalone: true })
 export class StaggerDirective implements AfterViewInit {
@@ -6,9 +7,15 @@ export class StaggerDirective implements AfterViewInit {
     step = 90;
     @Input() staggerStart = 0;
 
-    constructor(private el: ElementRef) { }
+    constructor(
+        private el: ElementRef,
+        @Inject(PLATFORM_ID) private platformId: object
+    ) { }
 
     ngAfterViewInit() {
+        if (!isPlatformBrowser(this.platformId)) return;
+        if (window.matchMedia('(max-width: 767px)').matches) return;
+
         const children = Array.from(
             (this.el.nativeElement as HTMLElement).children
         ) as HTMLElement[];

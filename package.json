@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "node tools/write-runtime-config.js --local && ng serve",
+    "build": "node tools/write-runtime-config.js --empty && ng build && node tools/assert-no-localhost-in-dist.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
