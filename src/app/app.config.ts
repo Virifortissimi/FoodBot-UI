@@ -7,11 +7,18 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideClientHydration } from '@angular/platform-browser';
 import { AuthService } from './core/services/auth.service';
 import { DeviceModeService } from './core/services/device-mode.service';
+import { BrowserDataResetService } from './core/services/browser-data-reset.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      deps: [BrowserDataResetService],
+      useFactory: (browserDataResetService: BrowserDataResetService) => () => browserDataResetService.initialize()
+    },
     {
       provide: APP_INITIALIZER,
       multi: true,
