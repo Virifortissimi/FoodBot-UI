@@ -32,7 +32,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             return next(authReq).pipe(
                 catchError((error: HttpErrorResponse) => {
                     const alreadyRetried = authReq.headers.has(RETRY_HEADER);
-                    if (error.status !== 401 || isAuthRequest || alreadyRetried) {
+                    if (error.status !== 401 || isAuthRequest || alreadyRetried || isExternalServiceAuthFailure(error)) {
                         return throwError(() => error);
                     }
 
@@ -62,3 +62,18 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         })
     );
 };
+
+function isExternalServiceAuthFailure(error: HttpErrorResponse): boolean {
+    const message = [
+        error.error?.errors?.[0],
+        error.error?.message,
+        error.message
+    ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
+    return message.includes('github models')
+        || message.includes('configured github models pat')
+        || message.includes('external service');
+}

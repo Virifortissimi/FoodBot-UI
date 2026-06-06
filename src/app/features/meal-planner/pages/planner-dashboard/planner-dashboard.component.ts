@@ -19,6 +19,7 @@ export class PlannerDashboardComponent implements OnInit {
   shareMenuOpen = signal(false);
   private toastService = inject(ToastService);
   private entitlementService = inject(EntitlementService);
+  private readonly dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   private readonly mealThemePalette: Record<string, Array<{
     cardBackground: string;
     borderColor: string;
@@ -291,13 +292,9 @@ export class PlannerDashboardComponent implements OnInit {
     this.mealPlanService.getCurrentPlan().subscribe({
       next: (res) => {
         if (res.success && res.data?.planData) {
-          try {
-            const data = JSON.parse(res.data.planData);
-            if (data.weekDays) {
-              this.weekDays = data.weekDays;
-            }
-          } catch (e) {
-            console.error('Failed to parse plan data', e);
+          const normalizedPlan = this.normalizePlanPayload(res.data);
+          if (normalizedPlan) {
+            this.weekDays = normalizedPlan;
           }
         }
       }
@@ -334,19 +331,9 @@ export class PlannerDashboardComponent implements OnInit {
 
   onPlanGenerated(data: any) {
     this.showGenerationModal.set(false);
-    const parsed = this.parsePlanPayload(data);
-    if (parsed?.days) {
-      // Map AI response to DayPlan structure
-      this.weekDays = parsed.days.map((d: any) => ({
-        name: String(d.day || 'Day').substring(0, 3),
-        meals: (d.meals || []).map((m: any) => ({
-          id: Math.random().toString(36).substring(7),
-          title: m.recipeName || m.name || 'Meal',
-          type: m.type || 'Meal',
-          time: Number(m.time || 20),
-          calories: Number(m.calories || 0)
-        }))
-      }));
+    const normalizedPlan = this.normalizePlanPayload(data);
+    if (normalizedPlan) {
+      this.weekDays = normalizedPlan;
       this.toastService.success('AI-Powered Meal Plan Generated!');
       this.savePlan();
       return;
@@ -355,20 +342,72 @@ export class PlannerDashboardComponent implements OnInit {
     this.toastService.error('Generated plan format was invalid.');
   }
 
+  private normalizePlanPayload(data: any): DayPlan[] | null {
+    const parsed = this.parsePlanPayload(data);
+    if (!parsed) return null;
+
+    if (Array.isArray(parsed.weekDays)) {
+      return parsed.weekDays.map((day: any, index: number) => this.normalizeDayPlan(day, index));
+    }
+
+    if (Array.isArray(parsed.days)) {
+      return parsed.days.map((day: any, index: number) => this.normalizeDayPlan(day, index));
+    }
+
+    return null;
+  }
+
   private parsePlanPayload(data: any): any | null {
     if (!data) return null;
 
-    if (data.days) return data;
+    if (data.weekDays || data.days) return data;
 
     if (data.planData) {
       try {
-        return JSON.parse(data.planData);
+        return JSON.parse(this.stripJsonCodeFence(data.planData));
       } catch {
         return null;
       }
     }
 
     return null;
+  }
+
+  private normalizeDayPlan(day: any, index: number): DayPlan {
+    const dayNumber = Number(day?.day);
+    const name = typeof day?.name === 'string' && day.name.trim()
+      ? day.name.trim().substring(0, 3)
+      : this.dayNames[((Number.isFinite(dayNumber) && dayNumber > 0 ? dayNumber - 1 : index) % this.dayNames.length)];
+
+    return {
+      name,
+      meals: Array.isArray(day?.meals)
+        ? day.meals.map((meal: any, mealIndex: number) => this.normalizeMeal(meal, index, mealIndex))
+        : []
+    };
+  }
+
+  private normalizeMeal(meal: any, dayIndex: number, mealIndex: number): Meal {
+    return {
+      id: String(meal?.id || `${dayIndex + 1}-${mealIndex + 1}-${Math.random().toString(36).substring(2, 8)}`),
+      title: meal?.title || meal?.recipeName || meal?.name || 'Meal',
+      type: this.capitalizeMealType(meal?.type || meal?.mealType || 'Meal'),
+      time: Number(meal?.time || meal?.prepTimeMin || meal?.durationMinutes || 20),
+      calories: Number(meal?.calories || meal?.caloriesKcal || 0)
+    };
+  }
+
+  private stripJsonCodeFence(value: string): string {
+    return String(value)
+      .trim()
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```$/i, '')
+      .trim();
+  }
+
+  private capitalizeMealType(value: string): string {
+    const normalized = String(value || 'Meal').trim();
+    return normalized ? normalized.charAt(0).toUpperCase() + normalized.slice(1) : 'Meal';
   }
 
   toggleShareMenu(): void {
