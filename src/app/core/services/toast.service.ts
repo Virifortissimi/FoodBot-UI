@@ -47,6 +47,10 @@ export class ToastService {
     private normalizeMessage(message: string, type: 'success' | 'error' | 'info' | 'warning'): string {
         const normalized = (message ?? '').toString().trim();
         if (normalized) {
+            if (type === 'error' && this.isRawHttpFailureMessage(normalized)) {
+                return 'The request is taking longer than expected. Please try again shortly.';
+            }
+
             return normalized;
         }
 
@@ -63,5 +67,11 @@ export class ToastService {
         }
 
         return 'Action completed.';
+    }
+
+    private isRawHttpFailureMessage(message: string): boolean {
+        const normalized = message.toLowerCase();
+        return normalized.startsWith('http failure response')
+            || normalized.includes('gateway timeout');
     }
 }

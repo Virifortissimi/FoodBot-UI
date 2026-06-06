@@ -287,6 +287,18 @@ export class AuthService {
       return 'Verification session is invalid or expired. Request a new email link or sign in manually.';
     }
 
+    if (error?.status === 504) {
+      return 'Secure sign-in is taking longer than expected. Please try again shortly.';
+    }
+
+    if (error?.status >= 500) {
+      return 'Secure sign-in is temporarily unavailable. Please try again shortly.';
+    }
+
+    if (error?.status === 0) {
+      return 'Unable to reach secure sign-in. Check your connection and try again.';
+    }
+
     const candidates = [
       error?.error?.errors?.[0],
       error?.error?.message,
@@ -321,6 +333,10 @@ export class AuthService {
       return null;
     }
 
+    if (this.isRawHttpFailureMessage(text)) {
+      return 'Secure sign-in is temporarily unavailable. Please try again shortly.';
+    }
+
     try {
       const parsed = JSON.parse(text);
       if (parsed && typeof parsed === 'object') {
@@ -334,6 +350,13 @@ export class AuthService {
     }
 
     return text;
+  }
+
+  private isRawHttpFailureMessage(message: string): boolean {
+    const normalized = message.toLowerCase();
+    return normalized.startsWith('http failure response')
+      || normalized.includes('/api/v1/auth/public-key')
+      || normalized.includes('gateway timeout');
   }
 
   private isTokenExpired(token: string): boolean {

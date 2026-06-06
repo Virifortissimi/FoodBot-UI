@@ -44,7 +44,7 @@ export const API_DOCS_HIGHLIGHTS = [
     },
     {
         title: 'Structured JSON',
-        description: 'Every endpoint returns a consistent envelope with success, data, meta, and errors.'
+        description: 'Every endpoint returns a consistent envelope with success, data, and meta. Failed responses include errors.'
     },
     {
         title: 'Built for nutrition workflows',
@@ -111,8 +111,7 @@ export const API_DOCS_SECTIONS: ApiDocSection[] = [
     "page": 1,
     "pageSize": 12,
     "total": 48
-  },
-  "errors": []
+  }
 }`,
                 samples: [
                     {
@@ -178,8 +177,7 @@ payload = response.json()`
       "slug": "party-jollof-chicken-tray"
     }
   ],
-  "meta": null,
-  "errors": []
+  "meta": null
 }`,
                 samples: [
                     {
@@ -234,8 +232,7 @@ var payload = await client.GetStringAsync(
       }
     ]
   },
-  "meta": null,
-  "errors": []
+  "meta": null
 }`,
                 samples: [
                     {
@@ -288,8 +285,7 @@ const payload = await response.json();`
       }
     ]
   },
-  "meta": null,
-  "errors": []
+  "meta": null
 }`,
                 samples: [
                     {
@@ -365,8 +361,7 @@ payload = response.json()`
     },
     "date": "2026-03-19T00:00:00Z"
   },
-  "meta": null,
-  "errors": []
+  "meta": null
 }`,
                 samples: [
                     {
@@ -406,8 +401,7 @@ payload = response.json()`
     "calories": 420,
     "proteinG": 24
   },
-  "meta": null,
-  "errors": []
+  "meta": null
 }`,
                 samples: [
                     {
@@ -462,8 +456,7 @@ payload = response.json()`
     "failedCount": 0,
     "failures": []
   },
-  "meta": null,
-  "errors": []
+  "meta": null
 }`,
                 samples: [
                     {
@@ -547,8 +540,7 @@ const payload = await response.json();`
       }
     ]
   },
-  "meta": null,
-  "errors": []
+  "meta": null
 }`,
                 samples: [
                     {
@@ -583,8 +575,7 @@ const payload = await response.json();`
     "isChecked": true,
     "updatedCount": 12
   },
-  "meta": null,
-  "errors": []
+  "meta": null
 }`,
                 samples: [
                     {
