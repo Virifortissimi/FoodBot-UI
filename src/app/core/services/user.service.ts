@@ -3,18 +3,30 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable, tap } from 'rxjs';
 
+export interface PersonalMetrics {
+    sex?: 'male' | 'female' | null;
+    ageYears?: number | null;
+    heightCm?: number | null;
+    weightKg?: number | null;
+    activityLevel?: 'sedentary' | 'light' | 'moderate' | 'very_active' | null;
+    bmr?: number | null;
+    tdee?: number | null;
+}
+
 export interface UserProfile {
     id: string;
     name: string;
     email: string;
     onboardingCompleted?: boolean;
     subscriptionTier: string;
+    goalIntent?: 'lose' | 'maintain' | 'gain' | null;
     goals: {
         calories: number;
         protein: number;
         carbs: number;
         fat: number;
     } | null;
+    personalMetrics?: PersonalMetrics | null;
     dietaryPreferences: string[];
 }
 
@@ -38,7 +50,8 @@ export class UserService {
     updateProfile(data: Partial<UserProfile>): Observable<any> {
         const payload: any = {
             name: data.name,
-            dietaryPreferences: data.dietaryPreferences ?? []
+            dietaryPreferences: data.dietaryPreferences ?? [],
+            goalIntent: data.goalIntent ?? undefined
         };
 
         if (data.goals) {
@@ -46,6 +59,14 @@ export class UserService {
             payload.proteinGoal = data.goals.protein;
             payload.carbsGoal = data.goals.carbs;
             payload.fatGoal = data.goals.fat;
+        }
+
+        if (data.personalMetrics) {
+            payload.sex = data.personalMetrics.sex ?? undefined;
+            payload.ageYears = data.personalMetrics.ageYears ?? undefined;
+            payload.heightCm = data.personalMetrics.heightCm ?? undefined;
+            payload.weightKg = data.personalMetrics.weightKg ?? undefined;
+            payload.activityLevel = data.personalMetrics.activityLevel ?? undefined;
         }
 
         return this.http.patch<any>(`${this.apiUrl}/profile`, payload).pipe(

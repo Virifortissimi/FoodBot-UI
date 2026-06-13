@@ -40,6 +40,68 @@
 
         <!-- Nutrition Goals -->
         <section class="card space-y-5">
+            <div class="profile-section-header">
+                <div>
+                    <h2 class="type-title">Goal & Personalization</h2>
+                    <p class="type-body-s" style="margin-top: 0.25rem;">Use your body details to calculate a more personal calorie target.</p>
+                </div>
+                <button type="button" class="btn-outline btn-sm" (click)="applyRecommendedTargets()">Apply Recommendation</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="form-label">Goal</label>
+                    <select [(ngModel)]="profileForm.goalIntent" class="form-input">
+                        <option *ngFor="let goal of goalOptions" [ngValue]="goal.key">{{ goal.label }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Sex</label>
+                    <select [(ngModel)]="profileForm.personalMetrics.sex" class="form-input">
+                        <option *ngFor="let option of sexOptions" [ngValue]="option.key">{{ option.label }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Activity Level</label>
+                    <select [(ngModel)]="profileForm.personalMetrics.activityLevel" class="form-input">
+                        <option *ngFor="let option of activityOptions" [ngValue]="option.key">{{ option.label }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Age</label>
+                    <input [(ngModel)]="profileForm.personalMetrics.ageYears" type="number" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Height</label>
+                    <div class="relative">
+                        <input [(ngModel)]="profileForm.personalMetrics.heightCm" type="number" class="form-input" style="padding-right: 3rem;">
+                        <span style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--ink-placeholder); font-size: 0.75rem;">cm</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">Weight</label>
+                    <div class="relative">
+                        <input [(ngModel)]="profileForm.personalMetrics.weightKg" type="number" class="form-input" style="padding-right: 3rem;">
+                        <span style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--ink-placeholder); font-size: 0.75rem;">kg</span>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="calorieRecommendation as recommendation" class="card-accent" style="padding: 1rem 1.25rem; border-radius: 1.25rem;">
+                <div class="profile-section-header">
+                    <div>
+                        <p class="type-overline">Personalized Recommendation</p>
+                        <h3 class="type-title" style="margin-top: 0.25rem;">{{ recommendation.calories }} kcal/day</h3>
+                    </div>
+                    <div style="text-align: right;">
+                        <p class="type-body-s">BMR {{ recommendation.bmr }} kcal</p>
+                        <p class="type-body-s">TDEE {{ recommendation.tdee }} kcal</p>
+                    </div>
+                </div>
+                <p class="type-body-s" style="margin-top: 0.5rem;">
+                    Based on your goal and activity, FoodBot recommends {{ recommendation.protein }}g protein, {{ recommendation.carbs }}g carbs, and {{ recommendation.fat }}g fat.
+                </p>
+            </div>
+
             <h2 class="type-title">Nutrition Goals</h2>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>

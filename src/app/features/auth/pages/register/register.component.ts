@@ -15,6 +15,7 @@ import { ToastService } from '../../../../core/services/toast.service';
 export class RegisterComponent {
   registerForm: FormGroup;
   loading = false;
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -72,6 +73,10 @@ export class RegisterComponent {
     } finally {
       this.loading = false;
     }
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 
   private resolvePostAuthRedirect(): string {

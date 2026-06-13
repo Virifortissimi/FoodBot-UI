@@ -6,12 +6,14 @@ import { finalize } from 'rxjs';
 import { BadgeProgress, BadgeService } from '../../../../core/services/badge.service';
 import { SubscriptionService } from '../../../../core/services/subscription.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { UserService } from '../../../../core/services/user.service';
+import { PersonalMetrics, UserService } from '../../../../core/services/user.service';
 
 interface ProfileForm {
     name: string;
     email: string;
+    goalIntent: 'lose' | 'maintain' | 'gain';
     goals: { calories: number; protein: number; carbs: number; fat: number; };
+    personalMetrics: PersonalMetrics;
     preferences: string[];
 }
 
@@ -24,6 +26,21 @@ interface ProfileForm {
 })
 export class ProfilePageComponent implements OnInit {
     readonly maxDietaryPreferences = 3;
+    readonly goalOptions = [
+        { key: 'lose' as const, label: 'Lose weight' },
+        { key: 'maintain' as const, label: 'Maintain weight' },
+        { key: 'gain' as const, label: 'Gain weight' }
+    ];
+    readonly sexOptions = [
+        { key: 'female' as const, label: 'Female' },
+        { key: 'male' as const, label: 'Male' }
+    ];
+    readonly activityOptions = [
+        { key: 'sedentary' as const, label: 'Sedentary' },
+        { key: 'light' as const, label: 'Lightly active' },
+        { key: 'moderate' as const, label: 'Moderately active' },
+        { key: 'very_active' as const, label: 'Very active' }
+    ];
     saving = false;
     saveSuccess = false;
     cancellingSubscription = false;
@@ -56,7 +73,17 @@ export class ProfilePageComponent implements OnInit {
     profileForm: ProfileForm = {
         name: '',
         email: '',
-        goals: { calories: 2000, protein: 150, carbs: 200, fat: 65 },
+        goalIntent: 'maintain',
+        goals: { calories: 2200, protein: 150, carbs: 220, fat: 70 },
+        personalMetrics: {
+            sex: 'female',
+            ageYears: 30,
+            heightCm: 165,
+            weightKg: 70,
+            activityLevel: 'moderate',
+            bmr: null,
+            tdee: null
+        },
         preferences: [],
     };
 
@@ -96,8 +123,15 @@ export class ProfilePageComponent implements OnInit {
             if (res.success) {
                 this.profileForm.name = res.data.name;
                 this.profileForm.email = res.data.email;
+                this.profileForm.goalIntent = res.data.goalIntent ?? 'maintain';
                 if (res.data.goals) {
                     this.profileForm.goals = { ...res.data.goals };
+                }
+                if (res.data.personalMetrics) {
+                    this.profileForm.personalMetrics = {
+                        ...this.profileForm.personalMetrics,
+                        ...res.data.personalMetrics
+                    };
                 }
                 this.profileForm.preferences = this.normalizePreferences(res.data.dietaryPreferences ?? []);
             }
@@ -128,7 +162,9 @@ export class ProfilePageComponent implements OnInit {
         this.saving = true;
         this.userService.updateProfile({
             name: this.profileForm.name,
+            goalIntent: this.profileForm.goalIntent,
             goals: this.profileForm.goals,
+            personalMetrics: this.profileForm.personalMetrics,
             dietaryPreferences: this.normalizePreferences(this.profileForm.preferences)
         }).subscribe({
             next: (res) => {
@@ -144,6 +180,23 @@ export class ProfilePageComponent implements OnInit {
 
     discardChanges() {
         this.fetchProfile();
+    }
+
+    applyRecommendedTargets() {
+        const recommendation = this.calorieRecommendation;
+        if (!recommendation) {
+            this.toastService.error('Add your body details to calculate a personalized target.');
+            return;
+        }
+
+        this.profileForm.goals = {
+            calories: recommendation.calories,
+            protein: recommendation.protein,
+            carbs: recommendation.carbs,
+            fat: recommendation.fat
+        };
+        this.profileForm.personalMetrics.bmr = recommendation.bmr;
+        this.profileForm.personalMetrics.tdee = recommendation.tdee;
     }
 
     fetchSubscription() {
@@ -282,5 +335,51 @@ export class ProfilePageComponent implements OnInit {
             .filter((preference): preference is string => !!preference)
             .filter((preference, index, all) => all.indexOf(preference) === index)
             .slice(0, this.maxDietaryPreferences);
+    }
+
+    get calorieRecommendation(): { calories: number; protein: number; carbs: number; fat: number; bmr: number; tdee: number; } | null {
+        const metrics = this.profileForm.personalMetrics;
+        if (!metrics.sex || !metrics.ageYears || !metrics.heightCm || !metrics.weightKg || !metrics.activityLevel) {
+            return null;
+        }
+
+        const activityMultiplier = {
+            sedentary: 1.2,
+            light: 1.375,
+            moderate: 1.55,
+            very_active: 1.725
+        }[metrics.activityLevel];
+
+        if (!activityMultiplier) {
+            return null;
+        }
+
+        const bmrBase = (10 * metrics.weightKg) + (6.25 * metrics.heightCm) - (5 * metrics.ageYears);
+        const bmr = Math.round(bmrBase + (metrics.sex === 'male' ? 5 : -161));
+        const tdee = Math.round(bmr * activityMultiplier);
+        const calories = this.clampCalories(this.goalAdjustedCalories(tdee, this.profileForm.goalIntent));
+        const proteinMultiplier = this.profileForm.goalIntent === 'lose' ? 2.0 : this.profileForm.goalIntent === 'gain' ? 2.0 : 1.8;
+        const protein = Math.round(Math.max(metrics.weightKg * proteinMultiplier, calories * 0.24 / 4));
+        const fatRatio = this.profileForm.goalIntent === 'lose' ? 0.25 : 0.27;
+        const fat = Math.round(Math.max(metrics.weightKg * 0.8, calories * fatRatio / 9));
+        const carbs = Math.max(0, Math.round((calories - (protein * 4) - (fat * 9)) / 4));
+
+        return { calories, protein, carbs, fat, bmr, tdee };
+    }
+
+    private goalAdjustedCalories(tdee: number, goalIntent: 'lose' | 'maintain' | 'gain'): number {
+        if (goalIntent === 'lose') {
+            return tdee - 450;
+        }
+
+        if (goalIntent === 'gain') {
+            return tdee + 300;
+        }
+
+        return tdee;
+    }
+
+    private clampCalories(value: number): number {
+        return Math.max(1200, Math.min(4200, Math.round(value / 10) * 10));
     }
 }

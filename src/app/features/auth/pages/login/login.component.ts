@@ -15,6 +15,7 @@ import { ToastService } from '../../../../core/services/toast.service';
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading = false;
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -66,6 +67,10 @@ export class LoginComponent implements OnInit {
     } finally {
       this.loading = false;
     }
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 
   async onForgotPassword(event: Event) {
