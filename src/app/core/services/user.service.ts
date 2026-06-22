@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable, tap } from 'rxjs';
+import { ClientCacheService } from './client-cache.service';
 
 export interface PersonalMetrics {
     sex?: 'male' | 'female' | null;
@@ -35,14 +36,27 @@ export interface UserProfile {
 })
 export class UserService {
     private apiUrl = `${environment.apiUrl}/users`;
+    private readonly profileCacheKey = 'users.profile';
+    private readonly profileCacheTtlMs = 15 * 60 * 1000;
     profile = signal<UserProfile | null>(null);
 
-    constructor(private http: HttpClient) { }
+    constructor(
+        private http: HttpClient,
+        private cache: ClientCacheService
+    ) { }
 
     getProfile(): Observable<any> {
+        const cached = this.cache.get<UserProfile>(this.profileCacheKey);
+        if (cached?.data) {
+            this.profile.set(cached.data);
+        }
+
         return this.http.get<any>(`${this.apiUrl}/profile`).pipe(
             tap(res => {
-                if (res.success) this.profile.set(res.data);
+                if (res.success) {
+                    this.profile.set(res.data);
+                    this.cache.set(this.profileCacheKey, res.data, this.profileCacheTtlMs);
+                }
             })
         );
     }
@@ -71,7 +85,11 @@ export class UserService {
 
         return this.http.patch<any>(`${this.apiUrl}/profile`, payload).pipe(
             tap(res => {
-                if (res.success) this.getProfile().subscribe();
+                if (res.success) {
+                    this.cache.remove(this.profileCacheKey);
+                    this.cache.remove('dashboard.analytics');
+                    this.getProfile().subscribe();
+                }
             })
         );
     }

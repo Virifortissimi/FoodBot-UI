@@ -12,6 +12,10 @@
                 </p>
             </div>
             <div class="flex items-center gap-3 flex-wrap">
+                <button type="button" (click)="openAddItemModal()" class="btn-outline btn-sm"
+                    [disabled]="shoppingBlocked() || initialLoading">
+                    + Add Item
+                </button>
                 <button (click)="copyList()" id="copy-shopping-list-btn" class="btn-outline btn-sm"
                     [disabled]="categories().length === 0 || initialLoading">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -37,7 +41,7 @@
                     </div>
                 </div>
                 <button (click)="generateList()" id="regenerate-shopping-list-btn" [disabled]="generating || !canGenerateList()"
-                    class="btn-green btn-sm">
+                    class="btn-green btn-sm shopping-generate-button">
                     <svg *ngIf="!generating" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -53,8 +57,8 @@
 
         <div *ngIf="initialLoading || generating" class="card-glass animate-slide-up"
             style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
-            <div
-                style="width: 2.75rem; height: 2.75rem; border-radius: 999px; border: 3px solid var(--green-100); border-top-color: var(--green-500); animation: spin 0.8s linear infinite;">
+            <div class="shopping-loading-icon" role="img" aria-label="Loading shopping list">
+                <span></span>
             </div>
             <div>
                 <h3 class="type-title" style="font-size: 1rem;">
@@ -64,6 +68,16 @@
                     {{ initialLoading ? 'Checking your latest saved items.' : 'Grouping ingredients from your current meal plan.' }}
                 </p>
             </div>
+        </div>
+
+        <div *ngIf="loadError && !initialLoading && !generating && !shoppingBlocked()" class="card"
+            style="padding: 2rem; border-color: color-mix(in srgb, var(--color-error) 20%, var(--border-default));">
+            <p class="type-overline" style="margin-bottom: 0.6rem; color: var(--color-error);">Could not load shopping list</p>
+            <h2 class="type-title" style="margin-bottom: 0.75rem;">{{ loadError }}</h2>
+            <p class="type-body-s" style="max-width: 36rem; margin-bottom: 1.5rem;">
+                Check that the backend is running, then try again.
+            </p>
+            <button type="button" class="btn-green" (click)="retryLoad()">Retry</button>
         </div>
 
         <div *ngIf="shoppingBlocked()" class="card" style="padding: 2rem;">
@@ -78,7 +92,7 @@
             </div>
         </div>
 
-        <div *ngIf="!shoppingBlocked() && categories().length > 0" class="card flex items-center gap-6" style="padding: 1.25rem 1.5rem;">
+        <div *ngIf="!loadError && !shoppingBlocked() && categories().length > 0" class="card flex items-center gap-6" style="padding: 1.25rem 1.5rem;">
             <div class="flex-1">
                 <div class="flex items-center justify-between" style="font-size: 0.875rem; margin-bottom: 0.5rem;">
                     <span style="font-weight: 500; color: var(--ink-secondary);">Shopping progress</span>
@@ -90,11 +104,13 @@
                         [style.width]="progressPercent + '%'"></div>
                 </div>
             </div>
-            <div *ngIf="checkedCount === totalCount && totalCount > 0" style="font-size: 1.5rem;"
-                class="animate-bounce-slow">🎉</div>
+            <div *ngIf="checkedCount === totalCount && totalCount > 0" class="shopping-success-icon"
+                role="img" aria-label="Shopping list complete">
+                <span>OK</span>
+            </div>
         </div>
 
-        <div *ngFor="let category of !shoppingBlocked() ? categories() : []" class="card" style="padding: 0; overflow: hidden;">
+        <div *ngFor="let category of (!loadError && !shoppingBlocked()) ? categories() : []" class="card" style="padding: 0; overflow: hidden;">
             <div class="flex items-center gap-3"
                 style="padding: 1rem 1.5rem; background: var(--surface-subtle); border-bottom: 1px solid var(--border-faint);">
                 <button
@@ -145,15 +161,24 @@
                         {{item.name}}
                     </span>
                     <span class="type-body-s">{{item.quantity}}</span>
+                    <div class="shopping-item-actions">
+                        <button type="button" class="shopping-icon-btn" (click)="openEditItemModal(item, $event)">
+                            Edit
+                        </button>
+                        <button type="button" class="shopping-icon-btn shopping-icon-btn--danger"
+                            (click)="deleteItem(item, $event)">
+                            Delete
+                        </button>
+                    </div>
                 </li>
             </ul>
         </div>
 
-        <div *ngIf="!shoppingBlocked() && categories().length === 0 && !initialLoading && !generating"
+        <div *ngIf="!loadError && !shoppingBlocked() && categories().length === 0 && !initialLoading && !generating"
             class="flex flex-col items-center justify-center text-center space-y-4" style="padding: 5rem 0;">
-            <div
-                style="width: 5rem; height: 5rem; background: var(--surface-subtle); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">
-                🛒</div>
+            <div class="shopping-empty-icon" role="img" aria-label="Empty shopping basket">
+                <span>+</span>
+            </div>
             <div class="space-y-1">
                 <h3 class="type-title">Your basket is looking lonely</h3>
                 <p class="type-body-s">Add meals to your planner to see your ingredients here.</p>
@@ -164,6 +189,52 @@
         <div *ngIf="copied" class="card-glass animate-slide-up"
             style="position: fixed; bottom: 1.5rem; right: 1.5rem; padding: 0.75rem 1.25rem; z-index: 50; display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 600; color: var(--green-600);">
             ✓ Shopping list copied!
+        </div>
+
+        <div *ngIf="itemModalOpen" class="shopping-modal-backdrop" (click)="closeItemModal()">
+            <form class="shopping-modal card" (click)="$event.stopPropagation()" (ngSubmit)="saveItem()">
+                <div class="flex items-start justify-between gap-4" style="margin-bottom: 1rem;">
+                    <div>
+                        <p class="type-overline" style="margin-bottom: 0.35rem;">Market item</p>
+                        <h2 class="type-title">{{ editingItem ? 'Edit item' : 'Add item' }}</h2>
+                    </div>
+                    <button type="button" class="shopping-icon-btn" (click)="closeItemModal()">Close</button>
+                </div>
+
+                <label class="shopping-field">
+                    <span>Item name</span>
+                    <input name="name" [(ngModel)]="itemForm.name" required class="form-input"
+                        placeholder="Chicken breast">
+                </label>
+
+                <label class="shopping-field">
+                    <span>Quantity</span>
+                    <input name="quantity" [(ngModel)]="itemForm.quantity" class="form-input" placeholder="1 item">
+                </label>
+
+                <div class="shopping-chip-row">
+                    <button *ngFor="let quantity of quantityPresets" type="button" class="shopping-chip"
+                        (click)="applyQuantityPreset(quantity)">
+                        {{ quantity }}
+                    </button>
+                </div>
+
+                <label class="shopping-field">
+                    <span>Category</span>
+                    <select name="category" [(ngModel)]="itemForm.category" class="form-input">
+                        <option *ngFor="let category of shoppingCategories" [value]="category">{{ category }}</option>
+                    </select>
+                </label>
+
+                <div class="flex items-center justify-end gap-3" style="margin-top: 1.25rem;">
+                    <button type="button" class="btn-outline" (click)="closeItemModal()" [disabled]="savingItem">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-green" [disabled]="savingItem || !itemForm.name.trim()">
+                        {{ savingItem ? 'Saving...' : (editingItem ? 'Save Item' : 'Add Item') }}
+                    </button>
+                </div>
+            </form>
         </div>
 
     </div>
@@ -180,6 +251,59 @@
         color: var(--ink-secondary);
         cursor: pointer;
         transition: color 160ms ease;
+    }
+
+    .shopping-generate-button {
+        min-width: 9.5rem;
+        justify-content: center;
+        white-space: nowrap;
+    }
+
+    .shopping-loading-icon {
+        width: 3.5rem;
+        height: 3.5rem;
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .shopping-loading-icon span {
+        width: 2rem;
+        height: 2rem;
+        border: 3px solid var(--green-100);
+        border-top-color: var(--green-500);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+    }
+
+    .shopping-empty-icon {
+        width: 8rem;
+        height: 8rem;
+        border-radius: 50%;
+        background: var(--green-50);
+        color: var(--green-600);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: 800;
+        border: 1px solid var(--green-100);
+    }
+
+    .shopping-success-icon {
+        width: 4rem;
+        height: 4rem;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        background: var(--green-50);
+        color: var(--green-700);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 900;
+        border: 1px solid var(--green-100);
     }
 
     .shopping-section-toggle:hover {
@@ -238,6 +362,83 @@
     .share-option:hover {
         background: var(--surface-hover);
         color: var(--ink-primary);
+    }
+
+    .shopping-item-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        opacity: 0;
+        transition: opacity 160ms ease;
+    }
+
+    li:hover .shopping-item-actions,
+    li:focus-within .shopping-item-actions {
+        opacity: 1;
+    }
+
+    .shopping-icon-btn {
+        border: 1px solid var(--border-default);
+        border-radius: 999px;
+        background: var(--surface-base);
+        color: var(--ink-secondary);
+        padding: 0.35rem 0.65rem;
+        font-size: 0.72rem;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .shopping-icon-btn:hover {
+        color: var(--ink-primary);
+        border-color: var(--green-200);
+    }
+
+    .shopping-icon-btn--danger:hover {
+        color: var(--color-error);
+        border-color: var(--color-error);
+    }
+
+    .shopping-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 80;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 1rem;
+        background: rgba(15, 23, 42, 0.36);
+    }
+
+    .shopping-modal {
+        width: min(100%, 34rem);
+        padding: 1.5rem;
+    }
+
+    .shopping-field {
+        display: grid;
+        gap: 0.45rem;
+        margin-top: 1rem;
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: var(--ink-secondary);
+    }
+
+    .shopping-chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
+
+    .shopping-chip {
+        border: 1px solid var(--green-100);
+        border-radius: 999px;
+        background: var(--green-50);
+        color: var(--green-700);
+        padding: 0.45rem 0.75rem;
+        font-size: 0.78rem;
+        font-weight: 800;
+        cursor: pointer;
     }
 
     @keyframes spin {

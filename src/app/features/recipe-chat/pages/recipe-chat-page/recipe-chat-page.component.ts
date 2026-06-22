@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { RecipeChatService, Recipe } from '../../services/recipe-chat.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
@@ -9,11 +10,12 @@ import { TooltipDirective } from '../../../../shared/directives/tooltip.directiv
 import { EducationService } from '../../../../core/services/education.service';
 import { FeatureEducationCardComponent } from '../../../../shared/components/feature-education-card/feature-education-card.component';
 import { ToastService } from '../../../../core/services/toast.service';
+import { DayPlan, MealPlanService } from '../../../meal-planner/services/meal-plan.service';
 
 @Component({
     selector: 'app-recipe-chat-page',
     standalone: true,
-    imports: [CommonModule, FormsModule, TooltipDirective, FeatureEducationCardComponent],
+    imports: [CommonModule, FormsModule, RouterLink, TooltipDirective, FeatureEducationCardComponent],
     templateUrl: './recipe-chat-page.component.html',
     styleUrl: './recipe-chat-page.component.css'
 })
@@ -26,6 +28,13 @@ export class RecipeChatPageComponent implements OnInit, OnDestroy, AfterViewChec
 
     userInput = '';
     userName = signal('');
+    savePlanModalOpen = false;
+    savingRecipe = false;
+    recipeToSave: Recipe | null = null;
+    savePlanDays: DayPlan[] = [];
+    selectedSaveDayName = '';
+    private savePlanName = 'Weekly Plan';
+    private savePlanWeekStart = new Date().toISOString().split('T')[0];
 
     private classicNames = [
         'Chef Kofi', 'Zuri Enthusiast', 'Amara Cook', 'Obinna Gourmet',
@@ -44,7 +53,8 @@ export class RecipeChatPageComponent implements OnInit, OnDestroy, AfterViewChec
         public chatService: RecipeChatService,
         private authService: AuthService,
         public educationService: EducationService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private mealPlanService: MealPlanService
     ) { }
 
     ngOnInit() {
@@ -138,6 +148,74 @@ export class RecipeChatPageComponent implements OnInit, OnDestroy, AfterViewChec
         return 0;
     }
 
+    openSaveRecipeModal(recipe: Recipe): void {
+        this.recipeToSave = recipe;
+        this.savePlanModalOpen = true;
+        this.savingRecipe = true;
+        this.savePlanDays = [];
+
+        this.mealPlanService.getCurrentPlan().subscribe({
+            next: response => {
+                this.savingRecipe = false;
+                const data = response?.data;
+                this.savePlanName = data?.name || 'Weekly Plan';
+                this.savePlanWeekStart = data?.weekStart || new Date().toISOString().split('T')[0];
+                this.savePlanDays = this.normalizePlanDays(data);
+                this.selectedSaveDayName = this.savePlanDays[0]?.name || '';
+
+                if (!this.savePlanDays.length) {
+                    this.toastService.info('Create a meal plan first, then save recipes into it.');
+                }
+            },
+            error: () => {
+                this.savingRecipe = false;
+                this.toastService.error('Could not load your meal plan.');
+            }
+        });
+    }
+
+    closeSaveRecipeModal(): void {
+        this.savePlanModalOpen = false;
+        this.savingRecipe = false;
+        this.recipeToSave = null;
+    }
+
+    saveRecipeToSelectedDay(): void {
+        if (!this.recipeToSave || !this.selectedSaveDayName || !this.savePlanDays.length) {
+            return;
+        }
+
+        const targetDay = this.savePlanDays.find(day => day.name === this.selectedSaveDayName);
+        if (!targetDay) {
+            this.toastService.error('Choose a meal-plan day first.');
+            return;
+        }
+
+        targetDay.meals = [
+            ...targetDay.meals,
+            {
+                id: this.createClientId(),
+                title: this.recipeToSave.name,
+                type: 'Saved Recipe',
+                calories: this.getRecipeCalories(this.recipeToSave),
+                time: Number(this.recipeToSave.prepTimeMin || 0) + Number(this.recipeToSave.cookTimeMin || 0)
+            }
+        ];
+
+        this.savingRecipe = true;
+        this.mealPlanService.updatePlan(this.savePlanName, JSON.stringify({ weekDays: this.savePlanDays }), this.savePlanWeekStart).subscribe({
+            next: () => {
+                this.savingRecipe = false;
+                this.toastService.success('Recipe saved to your meal plan.');
+                this.closeSaveRecipeModal();
+            },
+            error: () => {
+                this.savingRecipe = false;
+                this.toastService.error('Could not save recipe to meal plan.');
+            }
+        });
+    }
+
     private scrollToBottom(): void {
         const container = this.scrollContainer?.nativeElement as HTMLDivElement | undefined;
         if (!container) {
@@ -145,5 +223,60 @@ export class RecipeChatPageComponent implements OnInit, OnDestroy, AfterViewChec
         }
 
         container.scrollTop = container.scrollHeight;
+    }
+
+    private normalizePlanDays(data: any): DayPlan[] {
+        const parsed = this.parsePlanPayload(data);
+        const days = Array.isArray(parsed?.weekDays)
+            ? parsed.weekDays
+            : Array.isArray(parsed?.days)
+                ? parsed.days
+                : [];
+
+        return days.map((day: any, index: number) => ({
+            name: String(day?.name || day?.day || `Day ${index + 1}`).substring(0, 12),
+            meals: Array.isArray(day?.meals)
+                ? day.meals.map((meal: any, mealIndex: number) => ({
+                    id: String(meal?.id || `${index + 1}-${mealIndex + 1}`),
+                    title: meal?.title || meal?.recipeName || meal?.name || 'Meal',
+                    type: meal?.type || meal?.mealType || 'Meal',
+                    calories: Number(meal?.calories || meal?.caloriesKcal || 0),
+                    time: Number(meal?.time || meal?.prepTimeMin || meal?.durationMinutes || 20)
+                }))
+                : []
+        }));
+    }
+
+    private parsePlanPayload(data: any): any | null {
+        if (!data) {
+            return null;
+        }
+
+        if (data.weekDays || data.days) {
+            return data;
+        }
+
+        if (data.planData) {
+            try {
+                return JSON.parse(String(data.planData).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, ''));
+            } catch {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    private getRecipeCalories(recipe: Recipe): number {
+        const nutrition = this.parseJson(recipe.nutrition);
+        return Number.parseFloat(String(nutrition?.Calories || 0)) || 0;
+    }
+
+    private createClientId(): string {
+        if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+            return crypto.randomUUID();
+        }
+
+        return `saved-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
     }
 }

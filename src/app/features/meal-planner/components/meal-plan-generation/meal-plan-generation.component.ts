@@ -21,7 +21,7 @@ import { UserService } from '../../../../core/services/user.service';
 
         @if (loading()) {
           <div class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-white/88 backdrop-blur-sm">
-            <div class="w-14 h-14 rounded-full border-4 border-[var(--green-100)] border-t-[var(--green-500)] animate-spin"></div>
+            <div class="w-16 h-16 border-4 border-green-100 border-t-green-500 rounded-full animate-spin"></div>
             <div class="text-center space-y-1">
               <p class="type-overline" style="color: var(--green-600); margin: 0;">Building Your Plan</p>
               <p class="type-body-s" style="margin: 0;">Balancing calories, preferences, and your week.</p>
@@ -151,7 +151,6 @@ export class MealPlanGenerationComponent implements OnInit {
 
   @Output() close = new EventEmitter<void>();
   @Output() generated = new EventEmitter<any>();
-
   loading = signal(false);
   savedPreferences = signal<string[]>([]);
 

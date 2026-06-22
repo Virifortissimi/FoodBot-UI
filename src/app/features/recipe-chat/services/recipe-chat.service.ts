@@ -36,17 +36,20 @@ interface BackendRecipe {
     dietaryTags?: string[];
 }
 
+type RecipeChatMessage = { sender: string, content: string, recipe?: Recipe };
+
 @Injectable({
     providedIn: 'root'
 })
 export class RecipeChatService {
+    static readonly STORAGE_KEY_PREFIX = 'foodbot.recipe-chat.messages.v1';
     private hubConnection?: signalR.HubConnection;
     private apiUrl = environment.apiUrl.replace('/api/v1', ''); // Assuming hubs are at root
     private readonly minimumThinkingMs = 900;
     private thinkingReadyAt = 0;
     private assistantRenderQueue = Promise.resolve();
 
-    messages = signal<{ sender: string, content: string, recipe?: Recipe }[]>([]);
+    messages = signal<RecipeChatMessage[]>([]);
     isConnected = signal(false);
     isTyping = signal(false);
     private toastService = inject(ToastService);
@@ -56,6 +59,8 @@ export class RecipeChatService {
         @Inject(PLATFORM_ID) private platformId: object
     ) {
         if (isPlatformBrowser(this.platformId)) {
+            this.restoreMessages();
+
             this.hubConnection = new signalR.HubConnectionBuilder()
                 .withUrl(`${this.apiUrl}/hubs/recipe-chat`, {
                     accessTokenFactory: async () => await this.authService.ensureValidToken() || ''
@@ -65,18 +70,18 @@ export class RecipeChatService {
 
             this.hubConnection.on('ReceiveMessage', (sender: string, content: string) => {
                 void this.queueAssistantRender(() => {
-                    this.messages.update(prev => [...prev, { sender, content }]);
+                    this.appendMessage({ sender, content });
                 });
             });
 
             this.hubConnection.on('ReceiveRecipe', (recipe: BackendRecipe) => {
                 const normalizedRecipe = this.normalizeRecipe(recipe);
                 void this.queueAssistantRender(() => {
-                    this.messages.update(prev => [...prev, {
+                    this.appendMessage({
                         sender: 'Chef Kora',
                         content: `I found a great ${normalizedRecipe.cuisine} recipe for you: ${normalizedRecipe.name}!`,
                         recipe: normalizedRecipe
-                    }]);
+                    });
                 });
             });
         }
@@ -108,7 +113,7 @@ export class RecipeChatService {
 
     async sendMessage(user: string, message: string) {
         if (this.hubConnection && this.hubConnection.state === signalR.HubConnectionState.Connected) {
-            this.messages.update(prev => [...prev, { sender: user, content: message }]);
+            this.appendMessage({ sender: user, content: message });
             this.thinkingReadyAt = Date.now() + this.minimumThinkingMs;
             this.isTyping.set(true);
 
@@ -121,6 +126,11 @@ export class RecipeChatService {
                 throw error;
             }
         }
+    }
+
+    clearHistory(): void {
+        this.messages.set([]);
+        this.persistMessages();
     }
 
     private queueAssistantRender(render: () => void) {
@@ -136,6 +146,40 @@ export class RecipeChatService {
         });
 
         return this.assistantRenderQueue;
+    }
+
+    private appendMessage(message: RecipeChatMessage): void {
+        const next = [...this.messages(), message];
+        this.messages.set(next);
+        this.persistMessages();
+    }
+
+    private restoreMessages(): void {
+        try {
+            const raw = localStorage.getItem(this.storageKey());
+            if (!raw) {
+                return;
+            }
+
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+                this.messages.set(parsed.filter(item => item?.sender && item?.content));
+            }
+        } catch {
+            localStorage.removeItem(this.storageKey());
+        }
+    }
+
+    private persistMessages(): void {
+        if (!isPlatformBrowser(this.platformId)) {
+            return;
+        }
+
+        localStorage.setItem(this.storageKey(), JSON.stringify(this.messages()));
+    }
+
+    private storageKey(): string {
+        return `${RecipeChatService.STORAGE_KEY_PREFIX}.${this.authService.user()?.id || 'anonymous'}`;
     }
 
     private normalizeRecipe(recipe: BackendRecipe): Recipe {

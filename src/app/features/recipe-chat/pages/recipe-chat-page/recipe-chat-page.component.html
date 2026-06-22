@@ -103,6 +103,11 @@
                                         </div>
                                     </div>
 
+                                    <button type="button" class="btn-green btn-sm mb-5"
+                                        (click)="openSaveRecipeModal(msg.recipe)">
+                                        Save to meal plan
+                                    </button>
+
                                     <p class="type-body-s mb-6 line-clamp-3 italic">"{{ msg.recipe.description }}"</p>
 
                                     <!-- Quick Stats -->
@@ -201,12 +206,8 @@
                 <div class="w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center text-white text-xl shadow-md"
                     style="background: var(--green-500); transform: rotate(-3deg);">👨‍🍳</div>
                 <div class="card card-accent" style="padding: 1rem 1.5rem; border-radius: 0 1.5rem 1.5rem 1.5rem;">
-                    <div class="flex gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-green-300 animate-bounce"></span>
-                        <span class="w-2 h-2 rounded-full bg-green-400 animate-bounce"
-                            [style.animation-delay]="'150ms'"></span>
-                        <span class="w-2 h-2 rounded-full bg-green-500 animate-bounce"
-                            [style.animation-delay]="'300ms'"></span>
+                    <div style="width: 3.5rem; height: 3.5rem; display: flex; align-items: center; justify-content: center;">
+                        <span class="w-5 h-5 border-2 border-green-100 border-t-green-500 rounded-full animate-spin"></span>
                     </div>
                 </div>
             </div>
@@ -247,6 +248,44 @@
             Chef Kora can suggest authentic recipes, but always verify ingredients for allergies.
         </p>
     </footer>
+
+    <div *ngIf="savePlanModalOpen" class="save-plan-backdrop" (click)="closeSaveRecipeModal()">
+        <div class="card save-plan-modal animate-slide-up" (click)="$event.stopPropagation()">
+            <div class="flex items-start justify-between gap-4" style="margin-bottom: 1.25rem;">
+                <div>
+                    <p class="type-overline" style="margin-bottom: 0.35rem;">Meal Planner</p>
+                    <h3 class="type-title">Save recipe</h3>
+                    <p class="type-body-s" style="margin-top: 0.25rem;">{{ recipeToSave?.name }}</p>
+                </div>
+                <button type="button" (click)="closeSaveRecipeModal()" class="save-plan-close">x</button>
+            </div>
+
+            <div *ngIf="savingRecipe" class="type-body-s">Loading your plan...</div>
+
+            <ng-container *ngIf="!savingRecipe">
+                <div *ngIf="savePlanDays.length; else noPlanDays" class="space-y-4">
+                    <label class="form-label">Choose day</label>
+                    <div class="save-day-grid">
+                        <button *ngFor="let day of savePlanDays" type="button" class="save-day-option"
+                            [class.save-day-option--active]="selectedSaveDayName === day.name"
+                            (click)="selectedSaveDayName = day.name">
+                            <strong>{{ day.name }}</strong>
+                            <span>{{ day.meals.length }} meal{{ day.meals.length === 1 ? '' : 's' }}</span>
+                        </button>
+                    </div>
+
+                    <button type="button" class="btn-green w-full btn-lg" (click)="saveRecipeToSelectedDay()">
+                        Save Recipe
+                    </button>
+                </div>
+
+                <ng-template #noPlanDays>
+                    <p class="type-body-s" style="margin-bottom: 1rem;">No meal plan days were found yet.</p>
+                    <a routerLink="/meal-planner" class="btn-green w-full">Open Meal Planner</a>
+                </ng-template>
+            </ng-container>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -270,5 +309,70 @@
     .hide-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
+    }
+
+    .save-plan-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 80;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: rgba(15, 23, 42, 0.44);
+        backdrop-filter: blur(8px);
+    }
+
+    .save-plan-modal {
+        width: 100%;
+        max-width: 28rem;
+        padding: 1.5rem;
+    }
+
+    .save-plan-close {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 999px;
+        border: 1px solid var(--border-subtle);
+        background: var(--surface-base);
+        color: var(--ink-secondary);
+    }
+
+    .save-day-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    .save-day-option {
+        border: 1px solid var(--border-subtle);
+        border-radius: 1rem;
+        padding: 0.875rem;
+        background: var(--surface-base);
+        text-align: left;
+        color: var(--ink-secondary);
+        transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .save-day-option strong,
+    .save-day-option span {
+        display: block;
+    }
+
+    .save-day-option strong {
+        color: var(--ink-primary);
+        font-size: 0.9rem;
+    }
+
+    .save-day-option span {
+        margin-top: 0.2rem;
+        font-size: 0.75rem;
+    }
+
+    .save-day-option:hover,
+    .save-day-option--active {
+        border-color: var(--green-300);
+        background: var(--green-50);
+        transform: translateY(-1px);
     }
 </style>

@@ -162,7 +162,9 @@
                     </button>
                 </div>
                 <div *ngIf="waterLogs.length === 0" class="flex flex-col items-center justify-center text-center" style="padding: 4rem 2rem;">
-                    <div style="width: 5rem; height: 5rem; background: var(--surface-subtle); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 1rem;">💧</div>
+                    <div class="empty-state-icon" role="img" aria-label="No water logged">
+                        <span>H2O</span>
+                    </div>
                     <h3 class="type-title" style="margin-bottom: 0.25rem;">No water logged yet</h3>
                     <p class="type-body-s" style="margin-bottom: 1.5rem;">Track your hydration throughout the day.</p>
                     <div class="flex flex-wrap justify-center gap-3">
@@ -208,7 +210,9 @@
                     </button>
                 </div>
                 <div *ngIf="mealLogs.length === 0" class="flex flex-col items-center justify-center text-center" style="padding: 4rem 2rem;">
-                    <div style="width: 5rem; height: 5rem; background: var(--surface-subtle); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 1rem;">🥗</div>
+                    <div class="empty-state-icon" role="img" aria-label="No meals logged">
+                        <span>Meal</span>
+                    </div>
                     <h3 class="type-title" style="margin-bottom: 0.25rem;">No meals logged yet</h3>
                     <p class="type-body-s" style="margin-bottom: 1.5rem;">Start tracking to see your nutrition unfold through the day.</p>
                     <button (click)="showAddModal = true" class="btn-green btn-sm">Log Your First Meal</button>
@@ -242,7 +246,9 @@
                     </button>
                 </div>
                 <div *ngIf="exerciseLogs.length === 0" class="flex flex-col items-center justify-center text-center" style="padding: 4rem 2rem;">
-                    <div style="width: 5rem; height: 5rem; background: var(--surface-subtle); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 1rem;">🏋️</div>
+                    <div class="empty-state-icon" role="img" aria-label="No workouts logged">
+                        <span>Move</span>
+                    </div>
                     <h3 class="type-title" style="margin-bottom: 0.25rem;">No workouts logged yet</h3>
                     <p class="type-body-s" style="margin-bottom: 1.5rem;">Log exercise manually or connect Strava to bring activities into FoodBot.</p>
                     <div class="flex flex-wrap justify-center gap-3">
@@ -268,11 +274,12 @@
                     <label class="form-label">Amount (ml)</label>
                     <input [(ngModel)]="newWaterAmount" type="number" min="1" step="50" placeholder="500" class="form-input">
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <button type="button" class="btn-outline btn-sm" (click)="newWaterAmount = 250">250ml</button>
-                    <button type="button" class="btn-outline btn-sm" (click)="newWaterAmount = 500">500ml</button>
-                    <button type="button" class="btn-outline btn-sm" (click)="newWaterAmount = 750">750ml</button>
-                    <button type="button" class="btn-outline btn-sm" (click)="newWaterAmount = 1000">1000ml</button>
+                <div class="quick-preset-row">
+                    <button *ngFor="let amount of waterAmountPresets" type="button" class="quick-preset-chip"
+                        [class.quick-preset-chip--active]="newWaterAmount === amount"
+                        (click)="newWaterAmount = amount">
+                        {{ amount }}ml
+                    </button>
                 </div>
                 <button (click)="addWaterEntry()" class="btn-green w-full btn-lg" style="margin-top: 0.5rem;">
                     Save Water
@@ -291,6 +298,17 @@
                 <button (click)="showAddModal=false" style="color: var(--ink-placeholder); cursor: pointer; border: none; background: none; padding: 0.5rem;">✕</button>
             </div>
             <div class="space-y-4">
+                <div>
+                    <label class="form-label">Quick add</label>
+                    <input [(ngModel)]="foodPresetSearch" type="text" placeholder="Search presets" class="form-input">
+                    <div class="preset-grid">
+                        <button *ngFor="let preset of filteredFoodPresets" type="button" class="preset-card"
+                            (click)="applyFoodPreset(preset)">
+                            <span class="preset-card__title">{{ preset.name }}</span>
+                            <span class="preset-card__meta">{{ preset.type }} · {{ preset.calories }} kcal</span>
+                        </button>
+                    </div>
+                </div>
                 <div>
                     <label class="form-label">Meal</label>
                     <input [(ngModel)]="newEntry.name" type="text" placeholder="e.g. Grilled Salmon with Rice" class="form-input">
@@ -332,6 +350,16 @@
                 <button (click)="showExerciseModal=false" style="color: var(--ink-placeholder); cursor: pointer; border: none; background: none; padding: 0.5rem;">✕</button>
             </div>
             <div class="space-y-4">
+                <div>
+                    <label class="form-label">Quick workouts</label>
+                    <div class="preset-grid">
+                        <button *ngFor="let preset of exercisePresets" type="button" class="preset-card"
+                            (click)="applyExercisePreset(preset)">
+                            <span class="preset-card__title">{{ preset.activity }}</span>
+                            <span class="preset-card__meta">{{ preset.durationMin }} min · {{ preset.caloriesBurned }} burned</span>
+                        </button>
+                    </div>
+                </div>
                 <div>
                     <label class="form-label">Activity</label>
                     <input [(ngModel)]="newExerciseEntry.activity" type="text" placeholder="e.g. Walking, Gym, Run" class="form-input">

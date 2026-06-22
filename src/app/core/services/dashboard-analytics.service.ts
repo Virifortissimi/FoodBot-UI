@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable, tap } from 'rxjs';
+import { ClientCacheService } from './client-cache.service';
 
 export interface DashboardOverview {
     todayCalories: number;
@@ -82,24 +83,38 @@ export interface DashboardAnalytics {
 })
 export class DashboardAnalyticsService {
     private readonly apiUrl = `${environment.apiUrl}/dashboard/analytics`;
+    private readonly cacheKey = 'dashboard.analytics';
+    private readonly cacheTtlMs = 3 * 60 * 1000;
 
     readonly analytics = signal<DashboardAnalytics | null>(null);
     readonly loading = signal(false);
 
-    constructor(private http: HttpClient) { }
+    constructor(
+        private http: HttpClient,
+        private cache: ClientCacheService
+    ) { }
 
     fetchAnalytics(): Observable<any> {
+        const cached = this.cache.get<DashboardAnalytics>(this.cacheKey);
+        if (cached?.data) {
+            this.analytics.set(cached.data);
+        }
+
         this.loading.set(true);
 
         return this.http.get<any>(this.apiUrl).pipe(
             tap({
                 next: (res) => {
                     if (res.success) {
-                        this.analytics.set(res.data as DashboardAnalytics);
+                        const analytics = res.data as DashboardAnalytics;
+                        this.analytics.set(analytics);
+                        this.cache.set(this.cacheKey, analytics, this.cacheTtlMs);
                     }
                 },
                 error: () => {
-                    this.analytics.set(null);
+                    if (!cached?.data) {
+                        this.analytics.set(null);
+                    }
                     this.loading.set(false);
                 },
                 complete: () => {
@@ -107,5 +122,9 @@ export class DashboardAnalyticsService {
                 }
             })
         );
+    }
+
+    clearCache(): void {
+        this.cache.remove(this.cacheKey);
     }
 }

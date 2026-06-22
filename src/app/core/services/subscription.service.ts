@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ClientCacheService } from './client-cache.service';
 
 export type PaymentProvider = 'paystack' | 'flutterwave';
 
@@ -52,8 +54,13 @@ export interface CancelSubscriptionResponse {
 })
 export class SubscriptionService {
     private apiUrl = `${environment.apiUrl}/subscriptions`;
+    private readonly plansCacheKey = 'subscriptions.plans';
+    private readonly plansCacheTtlMs = 60 * 60 * 1000;
 
-    constructor(private http: HttpClient) { }
+    constructor(
+        private http: HttpClient,
+        private cache: ClientCacheService
+    ) { }
 
     getPlans(localeCountryCode?: string | null, timeZone?: string | null): Observable<{ success: boolean; data: SubscriptionCatalogResponse }> {
         const params = new URLSearchParams();
@@ -70,7 +77,19 @@ export class SubscriptionService {
             ? `${this.apiUrl}/plans?${params.toString()}`
             : `${this.apiUrl}/plans`;
 
-        return this.http.get<{ success: boolean; data: SubscriptionCatalogResponse }>(url);
+        const cacheKey = `${this.plansCacheKey}.${localeCountryCode || 'auto'}.${timeZone || 'auto'}`;
+        return this.http.get<{ success: boolean; data: SubscriptionCatalogResponse }>(url).pipe(
+            tap(res => {
+                if (res.success) {
+                    this.cache.set(cacheKey, res, this.plansCacheTtlMs);
+                }
+            })
+        );
+    }
+
+    getCachedPlans(localeCountryCode?: string | null, timeZone?: string | null): { success: boolean; data: SubscriptionCatalogResponse } | null {
+        const cacheKey = `${this.plansCacheKey}.${localeCountryCode || 'auto'}.${timeZone || 'auto'}`;
+        return this.cache.get<{ success: boolean; data: SubscriptionCatalogResponse }>(cacheKey)?.data ?? null;
     }
 
     initialize(
@@ -88,7 +107,9 @@ export class SubscriptionService {
             cancelUrl,
             localeCountryCode,
             timeZone
-        });
+        }).pipe(tap(res => {
+            if (res.success) this.clearUserSubscriptionCaches();
+        }));
     }
 
     verify(reference: string, provider?: PaymentProvider): Observable<{ success: boolean; data: { verified: boolean; status: string; provider: string } }> {
@@ -97,6 +118,16 @@ export class SubscriptionService {
     }
 
     cancel(): Observable<{ success: boolean; data: CancelSubscriptionResponse }> {
-        return this.http.post<{ success: boolean; data: CancelSubscriptionResponse }>(`${this.apiUrl}/cancel`, {});
+        return this.http.post<{ success: boolean; data: CancelSubscriptionResponse }>(`${this.apiUrl}/cancel`, {}).pipe(
+            tap(res => {
+                if (res.success) this.clearUserSubscriptionCaches();
+            })
+        );
+    }
+
+    private clearUserSubscriptionCaches(): void {
+        this.cache.remove('entitlements');
+        this.cache.remove('users.profile');
+        this.cache.remove('dashboard.analytics');
     }
 }

@@ -1,5 +1,5 @@
 import { APP_INITIALIZER, ApplicationConfig, isDevMode } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withPreloading } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -8,10 +8,11 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { AuthService } from './core/services/auth.service';
 import { DeviceModeService } from './core/services/device-mode.service';
 import { BrowserDataResetService } from './core/services/browser-data-reset.service';
+import { AuthAwarePreloadingStrategy } from './core/services/auth-aware-preloading.strategy';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
+    provideRouter(routes, withPreloading(AuthAwarePreloadingStrategy)),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     {
       provide: APP_INITIALIZER,

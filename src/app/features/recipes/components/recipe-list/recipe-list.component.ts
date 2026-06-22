@@ -47,7 +47,7 @@ type RecipeViewMode = 'cards' | 'list' | 'maze' | 'compact' | 'bento' | 'split';
               </div>
             </div>
             <div class="hidden lg:block" fbReveal="right">
-              <img src="assets/images/hero-bowl.png" alt="Healthy food"
+              <img src="assets/images/hero-bowl.png" alt="Healthy FoodBot recipe bowl"
                 style="width: 100%; max-width: 400px; border-radius: 1.5rem; box-shadow: 0 20px 60px rgba(0,0,0,0.1); display: block; margin-left: auto;">
             </div>
           </div>
@@ -86,7 +86,9 @@ type RecipeViewMode = 'cards' | 'list' | 'maze' | 'compact' | 'bento' | 'split';
           </div>
         } @else if (recipes().length === 0) {
           <div class="flex flex-col items-center justify-center text-center" style="padding: 5rem 2rem;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
+            <div class="recipe-empty-state" role="img" aria-label="No recipes found">
+              <span>+</span>
+            </div>
             <h2 class="type-heading" style="margin-bottom: 0.5rem;">No recipes yet</h2>
             <p class="type-body" style="margin-bottom: 2rem;">Recipes will appear here as they're added. Try Chef Kora in the meantime!</p>
             <a routerLink="/recipe-chat" class="btn-green">Ask Chef Kora</a>
@@ -102,7 +104,7 @@ type RecipeViewMode = 'cards' | 'list' | 'maze' | 'compact' | 'bento' | 'split';
                       <img [ngSrc]="recipe.imageUrl" fill [alt]="recipe.name"
                         style="object-fit: cover; transition: transform 500ms ease;" class="group-hover:scale-105">
                     } @else {
-                      <div class="recipe-image-fallback">🍽️</div>
+                      <div class="recipe-image-fallback">Meal</div>
                     }
 
                     <div class="recipe-tag-overlay">
@@ -139,7 +141,7 @@ type RecipeViewMode = 'cards' | 'list' | 'maze' | 'compact' | 'bento' | 'split';
                     @if (recipe.imageUrl) {
                       <img [ngSrc]="recipe.imageUrl" fill [alt]="recipe.name" style="object-fit: cover;">
                     } @else {
-                      <div class="recipe-image-fallback">🍲</div>
+                      <div class="recipe-image-fallback">Soup</div>
                     }
                   </div>
 
@@ -183,7 +185,7 @@ type RecipeViewMode = 'cards' | 'list' | 'maze' | 'compact' | 'bento' | 'split';
                     @if (recipe.imageUrl) {
                       <img [ngSrc]="recipe.imageUrl" fill [alt]="recipe.name" style="object-fit: cover;">
                     } @else {
-                      <div class="recipe-image-fallback">🥘</div>
+                      <div class="recipe-image-fallback">Dish</div>
                     }
                   </div>
 
@@ -210,7 +212,7 @@ type RecipeViewMode = 'cards' | 'list' | 'maze' | 'compact' | 'bento' | 'split';
                     @if (recipe.imageUrl) {
                       <img [ngSrc]="recipe.imageUrl" fill [alt]="recipe.name" style="object-fit: cover;">
                     } @else {
-                      <div class="recipe-image-fallback" style="font-size: 2rem;">🥗</div>
+                      <div class="recipe-image-fallback">Fresh</div>
                     }
                   </div>
 
@@ -245,7 +247,7 @@ type RecipeViewMode = 'cards' | 'list' | 'maze' | 'compact' | 'bento' | 'split';
                     @if (recipe.imageUrl) {
                       <img [ngSrc]="recipe.imageUrl" fill [alt]="recipe.name" style="object-fit: cover;">
                     } @else {
-                      <div class="recipe-image-fallback">🍛</div>
+                      <div class="recipe-image-fallback">Bowl</div>
                     }
                     <div class="bento-overlay">
                       <span class="tag bento-tag">{{ recipe.cuisine }}</span>
@@ -296,7 +298,7 @@ type RecipeViewMode = 'cards' | 'list' | 'maze' | 'compact' | 'bento' | 'split';
                   @if (activeRecipe.imageUrl) {
                     <img [ngSrc]="activeRecipe.imageUrl" fill [alt]="activeRecipe.name" style="object-fit: cover;">
                   } @else {
-                    <div class="recipe-image-fallback">🍱</div>
+                    <div class="recipe-image-fallback">Plate</div>
                   }
                 </div>
 
@@ -361,7 +363,23 @@ type RecipeViewMode = 'cards' | 'list' | 'maze' | 'compact' | 'bento' | 'split';
       </section>
     </div>
   `,
-  styles: [':host { display: block; }']
+  styles: [`
+    :host { display: block; }
+    .recipe-empty-state {
+      width: 8rem;
+      height: 8rem;
+      margin-bottom: 1rem;
+      border-radius: 50%;
+      background: var(--green-50);
+      color: var(--green-600);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      font-weight: 800;
+      border: 1px solid var(--green-100);
+    }
+  `]
 })
 export class RecipeListComponent implements OnInit {
   private recipeService = inject(RecipeService);
@@ -378,7 +396,6 @@ export class RecipeListComponent implements OnInit {
     { value: 'split', label: 'Split', icon: '><' }
   ];
   readonly skeletonItems = [1, 2, 3, 4, 5, 6];
-
   readonly recipes = signal<Recipe[]>([]);
   readonly loading = signal(true);
   readonly total = signal(0);

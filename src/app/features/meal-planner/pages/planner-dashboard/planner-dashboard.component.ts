@@ -1,5 +1,6 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { MealPlanService, Meal, DayPlan } from '../../services/meal-plan.service';
 import { MealPlanGenerationComponent } from '../../components/meal-plan-generation/meal-plan-generation.component';
@@ -10,13 +11,15 @@ import { EntitlementService } from '../../../../core/services/entitlement.servic
 @Component({
   selector: 'app-planner-dashboard',
   standalone: true,
-  imports: [CommonModule, DragDropModule, MealPlanGenerationComponent],
+  imports: [CommonModule, RouterLink, DragDropModule, MealPlanGenerationComponent],
   templateUrl: './planner-dashboard.component.html',
   styleUrl: './planner-dashboard.component.css'
 })
 export class PlannerDashboardComponent implements OnInit {
   showGenerationModal = signal(false);
   shareMenuOpen = signal(false);
+  selectedDay = signal<DayPlan | null>(null);
+  selectedMeal = signal<Meal | null>(null);
   private toastService = inject(ToastService);
   private entitlementService = inject(EntitlementService);
   private readonly dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -236,6 +239,23 @@ export class PlannerDashboardComponent implements OnInit {
     return acc + (meal.calories || 0);
   }
 
+  openDayDetails(day: DayPlan): void {
+    this.selectedDay.set(day);
+  }
+
+  closeDayDetails(): void {
+    this.selectedDay.set(null);
+  }
+
+  openMealDetails(meal: Meal, event?: Event): void {
+    event?.stopPropagation();
+    this.selectedMeal.set(meal);
+  }
+
+  closeMealDetails(): void {
+    this.selectedMeal.set(null);
+  }
+
   getMealTheme(meal: Meal): {
     cardBackground: string;
     borderColor: string;
@@ -289,6 +309,14 @@ export class PlannerDashboardComponent implements OnInit {
   }
 
   loadPlan() {
+    const cached = this.mealPlanService.getCachedCurrentPlan();
+    if (cached?.success && cached.data?.planData) {
+      const normalizedPlan = this.normalizePlanPayload(cached.data);
+      if (normalizedPlan) {
+        this.weekDays = normalizedPlan;
+      }
+    }
+
     this.mealPlanService.getCurrentPlan().subscribe({
       next: (res) => {
         if (res.success && res.data?.planData) {

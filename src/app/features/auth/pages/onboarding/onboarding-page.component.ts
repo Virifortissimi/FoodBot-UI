@@ -236,8 +236,8 @@ type Recommendation = {
         </div>
 
         <div *ngIf="currentStep() === 5" style="text-align: center;" fbReveal="scale-up">
-          <div style="width: 120px; height: 120px; background: var(--green-50); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2.5rem;">
-            <span style="font-size: 3.5rem;">OK</span>
+          <div class="onboarding-complete-icon" role="img" aria-label="FoodBot setup complete">
+            <span>OK</span>
           </div>
           <h1 class="type-display" style="font-size: 2.5rem; margin-bottom: 1rem;">You're All Set</h1>
           <p class="type-body" style="color: var(--ink-secondary); margin-bottom: 3rem;">
@@ -256,6 +256,20 @@ type Recommendation = {
       gap: 0.5rem;
       margin-top: 0.75rem;
       flex-wrap: wrap;
+    }
+    .onboarding-complete-icon {
+      width: 8rem;
+      height: 8rem;
+      margin: -0.5rem auto 1.75rem;
+      border-radius: 50%;
+      background: var(--green-50);
+      color: var(--green-700);
+      border: 1px solid var(--green-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 900;
     }
     .goal-grid {
       display: grid;

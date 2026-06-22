@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { ShoppingListService } from '../../../../core/services/shopping-list.service';
+import { ShoppingItem, ShoppingListService } from '../../../../core/services/shopping-list.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { EntitlementService } from '../../../../core/services/entitlement.service';
 
@@ -14,22 +15,33 @@ interface GroupedCategory {
 @Component({
     selector: 'app-shopping-list-page',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule, RouterLink, FormsModule],
     templateUrl: './shopping-list-page.component.html',
     styleUrl: './shopping-list-page.component.css'
 })
 export class ShoppingListPageComponent implements OnInit {
     generating = false;
     initialLoading = true;
+    loadError = '';
     copied = false;
+    itemModalOpen = false;
+    savingItem = false;
+    editingItem: ShoppingItem | null = null;
+    itemForm = {
+        name: '',
+        quantity: '1 item',
+        category: 'Other'
+    };
+    readonly shoppingCategories = ['Produce', 'Protein', 'Dairy', 'Pantry', 'Frozen', 'Bakery', 'Spices', 'Beverages', 'Other'];
+    readonly quantityPresets = ['1 item', '2 items', '500g', '1 kg', '1 bunch', '1 pack'];
     shareMenuOpen = signal(false);
     categoryUpdating = signal<Record<string, boolean>>({});
     private toastService = inject(ToastService);
     private entitlementService = inject(EntitlementService);
     readonly entitlements = computed(() => this.entitlementService.entitlements());
     readonly shoppingBlocked = computed(() => {
-        const entitlements = this.entitlements();
-        return !!entitlements && !entitlements.shoppingListInteraction.allowed;
+        const entitlement = this.entitlements()?.shoppingListInteraction;
+        return !!entitlement && !entitlement.allowed;
     });
     readonly canGenerateList = computed(() => {
         const entitlement = this.entitlements()?.shoppingListGeneration;
@@ -60,14 +72,16 @@ export class ShoppingListPageComponent implements OnInit {
 
     categories = computed<GroupedCategory[]>(() => {
         const list = this.service.currentList();
-        if (!list?.items) return [];
+        const items = list?.items;
+        if (!Array.isArray(items)) return [];
 
-        const grouped = list.items.reduce((acc: Record<string, GroupedCategory>, item: any) => {
-            if (!acc[item.category]) {
-                acc[item.category] = { name: item.category, emoji: item.emoji || '📦', items: [] };
+        const grouped = items.reduce((acc: Record<string, GroupedCategory>, item: any) => {
+            const category = item.category || 'Other';
+            if (!acc[category]) {
+                acc[category] = { name: category, emoji: item.emoji || this.categoryIcon(category), items: [] };
             }
 
-            acc[item.category].items.push(item);
+            acc[category].items.push(item);
             return acc;
         }, {});
 
@@ -89,19 +103,22 @@ export class ShoppingListPageComponent implements OnInit {
     constructor(public service: ShoppingListService) { }
 
     ngOnInit(): void {
+        this.loadError = '';
         this.entitlementService.fetchEntitlements().subscribe({
             next: () => {
                 if (this.shoppingBlocked()) {
                     this.initialLoading = false;
-                    this.toastService.info(this.entitlements()?.shoppingListGeneration.message || 'Shopping Lists are not available on your current plan.');
+                    this.toastService.info(this.entitlements()?.shoppingListInteraction?.message || 'Shopping Lists are not available on your current plan.');
                     return;
                 }
 
                 this.service.getLatest().subscribe({
                     next: () => {
+                        this.loadError = '';
                         this.initialLoading = false;
                     },
-                    error: () => {
+                    error: (error) => {
+                        this.loadError = this.getApiErrorMessage(error, 'Unable to load your shopping list right now.');
                         this.initialLoading = false;
                     }
                 });
@@ -109,9 +126,11 @@ export class ShoppingListPageComponent implements OnInit {
             error: () => {
                 this.service.getLatest().subscribe({
                     next: () => {
+                        this.loadError = '';
                         this.initialLoading = false;
                     },
-                    error: () => {
+                    error: (error) => {
+                        this.loadError = this.getApiErrorMessage(error, 'Unable to load your shopping list right now.');
                         this.initialLoading = false;
                     }
                 });
@@ -130,6 +149,90 @@ export class ShoppingListPageComponent implements OnInit {
             error: (error) => {
                 item.isChecked = !item.isChecked;
                 this.toastService.error(this.getApiErrorMessage(error, 'Unable to update your shopping list right now.'));
+            }
+        });
+    }
+
+    openAddItemModal(): void {
+        if (this.shoppingBlocked()) {
+            this.toastService.warning(this.entitlements()?.shoppingListInteraction.message || 'Shopping Lists are not available on your current plan.');
+            return;
+        }
+
+        this.editingItem = null;
+        this.itemForm = { name: '', quantity: '1 item', category: 'Other' };
+        this.itemModalOpen = true;
+    }
+
+    openEditItemModal(item: ShoppingItem, event?: Event): void {
+        event?.stopPropagation();
+        if (this.shoppingBlocked()) {
+            this.toastService.warning(this.entitlements()?.shoppingListInteraction.message || 'Shopping Lists are not available on your current plan.');
+            return;
+        }
+
+        this.editingItem = item;
+        this.itemForm = {
+            name: item.name,
+            quantity: item.quantity || '1 item',
+            category: item.category || 'Other'
+        };
+        this.itemModalOpen = true;
+    }
+
+    closeItemModal(): void {
+        if (this.savingItem) return;
+        this.itemModalOpen = false;
+        this.editingItem = null;
+    }
+
+    applyQuantityPreset(quantity: string): void {
+        this.itemForm.quantity = quantity;
+    }
+
+    saveItem(): void {
+        const name = this.itemForm.name.trim();
+        if (!name || this.savingItem) return;
+
+        const payload = {
+            name,
+            quantity: this.itemForm.quantity.trim() || '1 item',
+            category: this.itemForm.category || 'Other'
+        };
+
+        this.savingItem = true;
+        const request = this.editingItem
+            ? this.service.updateItem(this.editingItem.id, {
+                ...payload,
+                isChecked: this.editingItem.isChecked
+            })
+            : this.service.addItem(payload);
+
+        request.subscribe({
+            next: () => {
+                this.savingItem = false;
+                this.itemModalOpen = false;
+                this.toastService.success(this.editingItem ? 'Shopping item updated.' : 'Shopping item added.');
+                this.editingItem = null;
+            },
+            error: error => {
+                this.savingItem = false;
+                this.toastService.error(this.getApiErrorMessage(error, 'Unable to save that item right now.'));
+            }
+        });
+    }
+
+    deleteItem(item: ShoppingItem, event?: Event): void {
+        event?.stopPropagation();
+        if (!item.id || this.shoppingBlocked()) return;
+
+        const previousList = this.service.currentList();
+        this.service.removeLocalItem(item.id);
+        this.service.deleteItem(item.id).subscribe({
+            next: () => this.toastService.success(`${item.name} removed.`),
+            error: error => {
+                this.service.currentList.set(previousList);
+                this.toastService.error(this.getApiErrorMessage(error, 'Unable to remove that item right now.'));
             }
         });
     }
@@ -197,15 +300,32 @@ export class ShoppingListPageComponent implements OnInit {
         }
 
         this.generating = true;
+        this.loadError = '';
         this.shareMenuOpen.set(false);
         this.service.generateList().subscribe({
             next: () => {
                 this.generating = false;
+                this.loadError = '';
                 this.entitlementService.fetchEntitlements().subscribe();
             },
             error: (error) => {
                 this.generating = false;
-                this.toastService.error(this.getApiErrorMessage(error, 'Unable to build a shopping list right now.'));
+                this.loadError = this.getApiErrorMessage(error, 'Unable to build a shopping list right now.');
+                this.toastService.error(this.loadError);
+            }
+        });
+    }
+
+    retryLoad(): void {
+        this.initialLoading = true;
+        this.loadError = '';
+        this.service.getLatest().subscribe({
+            next: () => {
+                this.initialLoading = false;
+            },
+            error: (error) => {
+                this.initialLoading = false;
+                this.loadError = this.getApiErrorMessage(error, 'Unable to load your shopping list right now.');
             }
         });
     }
@@ -280,6 +400,19 @@ export class ShoppingListPageComponent implements OnInit {
         return typeof window === 'undefined'
             ? '/shopping-list'
             : `${window.location.origin}/shopping-list`;
+    }
+
+    private categoryIcon(category: string): string {
+        const normalized = category.toLowerCase();
+        if (normalized.includes('produce')) return 'Produce';
+        if (normalized.includes('protein') || normalized.includes('meat')) return 'Protein';
+        if (normalized.includes('dairy')) return 'Dairy';
+        if (normalized.includes('pantry')) return 'Pantry';
+        if (normalized.includes('frozen')) return 'Frozen';
+        if (normalized.includes('bakery')) return 'Bakery';
+        if (normalized.includes('spice')) return 'Spices';
+        if (normalized.includes('beverage')) return 'Beverages';
+        return 'Other';
     }
 
     private getApiErrorMessage(error: any, fallback: string): string {

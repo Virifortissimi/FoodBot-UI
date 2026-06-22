@@ -68,9 +68,9 @@
 
         <div *ngIf="!plannerBlocked() && isPlanEmpty" class="flex flex-col items-center justify-center text-center"
             style="padding: 5rem 2rem;">
-            <div
-                style="width: 6rem; height: 6rem; background: var(--green-50); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin-bottom: 1.5rem;">
-                &#128197;</div>
+            <div class="planner-empty-state-icon" role="img" aria-label="Empty meal plan">
+                <span>+</span>
+            </div>
             <h2 class="type-heading" style="margin-bottom: 0.5rem;">Your week is wide open</h2>
             <p class="type-body" style="max-width: 24rem; margin: 0 auto 2rem;">
                 No meals planned yet. Let our AI chef build you a personalized week of delicious, healthy meals, or add
@@ -103,6 +103,7 @@
                         {{ day.meals.length }} meal{{day.meals.length !== 1 ? 's' : ''}} &middot;
                         {{ day.meals.reduce(sumCal, 0) | number:'1.0-0' }} kcal
                     </p>
+                    <button type="button" class="planner-detail-link" (click)="openDayDetails(day)">View day</button>
                 </div>
 
                 <div cdkDropList [cdkDropListData]="day.meals" (cdkDropListDropped)="drop($event)"
@@ -139,6 +140,11 @@
                             <span class="flex items-center gap-1">&#128293; {{ meal.calories }}kcal</span>
                         </div>
 
+                        <button type="button" class="planner-detail-link planner-detail-link--meal"
+                            (click)="openMealDetails(meal, $event)">
+                            Details
+                        </button>
+
                         <div *cdkDragPlaceholder
                             style="border: 2px dashed var(--green-200); border-radius: 0.75rem; height: 5rem; background: var(--green-50); opacity: 0.5;">
                         </div>
@@ -155,6 +161,57 @@
                 </div>
             </div>
             }
+        </div>
+    </div>
+
+    <div *ngIf="selectedDay()" class="planner-modal-backdrop" (click)="closeDayDetails()">
+        <div class="card planner-modal animate-slide-up" (click)="$event.stopPropagation()">
+            <div class="flex items-start justify-between gap-4" style="margin-bottom: 1.25rem;">
+                <div>
+                    <p class="type-overline" style="margin-bottom: 0.35rem;">Day Detail</p>
+                    <h3 class="type-title">{{ selectedDay()?.name }}</h3>
+                    <p class="type-body-s">{{ selectedDay()?.meals?.length || 0 }} meals planned</p>
+                </div>
+                <button type="button" class="planner-modal-close" (click)="closeDayDetails()">x</button>
+            </div>
+
+            <div class="day-detail-summary">
+                <span>{{ selectedDay()?.meals?.reduce(sumCal, 0) | number:'1.0-0' }} kcal</span>
+                <span>{{ selectedDay()?.meals?.length || 0 }} meals</span>
+            </div>
+
+            <div class="space-y-3" style="margin-top: 1rem;">
+                <button *ngFor="let meal of selectedDay()?.meals" type="button" class="day-detail-meal"
+                    (click)="openMealDetails(meal, $event)">
+                    <span>{{ getMealEmoji(meal) }}</span>
+                    <strong>{{ meal.title }}</strong>
+                    <small>{{ meal.type }} · {{ meal.time }}m · {{ meal.calories }} kcal</small>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="selectedMeal()" class="planner-modal-backdrop" (click)="closeMealDetails()">
+        <div class="card planner-modal planner-modal--meal animate-slide-up" (click)="$event.stopPropagation()">
+            <div class="flex items-start justify-between gap-4" style="margin-bottom: 1.25rem;">
+                <div>
+                    <p class="type-overline" style="margin-bottom: 0.35rem;">Meal Detail</p>
+                    <h3 class="type-title">{{ selectedMeal()?.title }}</h3>
+                    <p class="type-body-s">{{ selectedMeal()?.type }}</p>
+                </div>
+                <button type="button" class="planner-modal-close" (click)="closeMealDetails()">x</button>
+            </div>
+
+            <div class="meal-detail-grid">
+                <div>
+                    <span>Calories</span>
+                    <strong>{{ selectedMeal()?.calories || 0 }}</strong>
+                </div>
+                <div>
+                    <span>Time</span>
+                    <strong>{{ selectedMeal()?.time || 0 }}m</strong>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -180,5 +237,134 @@
     .share-option:hover {
         background: var(--surface-hover);
         color: var(--ink-primary);
+    }
+
+    .planner-detail-link {
+        margin-top: 0.45rem;
+        border: 0;
+        background: transparent;
+        color: var(--green-700);
+        font-size: 0.72rem;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    .planner-empty-state-icon {
+        width: 9rem;
+        height: 9rem;
+        margin-bottom: 1.25rem;
+        border-radius: 50%;
+        background: var(--green-50);
+        color: var(--green-600);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: 800;
+        border: 1px solid var(--green-100);
+    }
+
+    .planner-detail-link--meal {
+        display: inline-flex;
+        margin-top: 0.65rem;
+        padding: 0;
+    }
+
+    .planner-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 70;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: rgba(15, 23, 42, 0.42);
+        backdrop-filter: blur(8px);
+    }
+
+    .planner-modal {
+        width: 100%;
+        max-width: 32rem;
+        padding: 1.5rem;
+    }
+
+    .planner-modal--meal {
+        max-width: 24rem;
+    }
+
+    .planner-modal-close {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 999px;
+        border: 1px solid var(--border-subtle);
+        background: var(--surface-base);
+        color: var(--ink-secondary);
+    }
+
+    .day-detail-summary {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    .day-detail-summary span,
+    .meal-detail-grid div {
+        border-radius: 1rem;
+        background: var(--green-50);
+        color: var(--green-800);
+        padding: 0.875rem;
+        font-weight: 900;
+        text-align: center;
+    }
+
+    .day-detail-meal {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.25rem 0.75rem;
+        width: 100%;
+        padding: 0.9rem;
+        border: 1px solid var(--border-subtle);
+        border-radius: 1rem;
+        background: var(--surface-base);
+        text-align: left;
+    }
+
+    .day-detail-meal span {
+        grid-row: span 2;
+        font-size: 1.3rem;
+    }
+
+    .day-detail-meal strong {
+        color: var(--ink-primary);
+        font-size: 0.92rem;
+    }
+
+    .day-detail-meal small {
+        color: var(--ink-secondary);
+        font-size: 0.75rem;
+    }
+
+    .meal-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    .meal-detail-grid span,
+    .meal-detail-grid strong {
+        display: block;
+    }
+
+    .meal-detail-grid span {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--green-700);
+    }
+
+    .meal-detail-grid strong {
+        margin-top: 0.25rem;
+        color: var(--ink-primary);
+        font-size: 1.25rem;
     }
 </style>

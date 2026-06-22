@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { Observable, tap } from 'rxjs';
+import { catchError, defer, Observable, tap, throwError } from 'rxjs';
 
 export interface Course {
     id: string;
@@ -59,14 +59,48 @@ export class LearningHubService {
     }
 
     completeLesson(lessonId: string, score?: number): Observable<any> {
-        return this.http.post(`${this.apiUrl}/lessons/${lessonId}/complete`, score || null).pipe(
-            tap(() => {
-                // Refresh progress
-                if (this.currentCourse()) {
-                    this.getCourseDetails(this.currentCourse().slug);
-                }
-                this.fetchCourses();
-            })
-        );
+        return defer(() => {
+            const previousLesson = this.currentLesson();
+            const previousCourse = this.currentCourse();
+            const previousCourses = this.courses();
+            const wasCompleted = previousLesson?.isCompleted === true;
+
+            if (previousLesson?.id === lessonId) {
+                this.currentLesson.set({ ...previousLesson, isCompleted: true });
+            }
+
+            if (previousCourse?.lessons) {
+                this.currentCourse.set({
+                    ...previousCourse,
+                    lessons: previousCourse.lessons.map((lesson: Lesson) =>
+                        lesson.id === lessonId ? { ...lesson, isCompleted: true } : lesson
+                    )
+                });
+            }
+
+            if (!wasCompleted) {
+                const courseId = previousLesson?.courseId || previousCourse?.id;
+                this.courses.set(previousCourses.map(course =>
+                    course.id === courseId
+                        ? { ...course, completedCount: Math.min(course.lessonCount, course.completedCount + 1) }
+                        : course
+                ));
+            }
+
+            return this.http.post(`${this.apiUrl}/lessons/${lessonId}/complete`, score ?? null).pipe(
+                tap(() => {
+                    if (this.currentCourse()) {
+                        this.getCourseDetails(this.currentCourse().slug);
+                    }
+                    this.fetchCourses();
+                }),
+                catchError(error => {
+                    this.currentLesson.set(previousLesson);
+                    this.currentCourse.set(previousCourse);
+                    this.courses.set(previousCourses);
+                    return throwError(() => error);
+                })
+            );
+        });
     }
 }

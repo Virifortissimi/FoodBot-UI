@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterPreloader } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { AuthPreloadStateService } from './auth-preload-state.service';
 
 export interface User {
   id: string;
@@ -50,6 +51,8 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
+    private routerPreloader: RouterPreloader,
+    private authPreloadState: AuthPreloadStateService,
     @Inject(PLATFORM_ID) private platformId: object
   ) {
     this.clearLegacyStoredSession();
@@ -272,14 +275,39 @@ export class AuthService {
     this.token.set(normalizedToken);
     this.user.set(response.user);
     this.persistSessionHint(true);
+    this.authPreloadState.enable();
+    if (isPlatformBrowser(this.platformId)) {
+      queueMicrotask(() => this.routerPreloader.preload().subscribe());
+    }
     return { ...response, accessToken: normalizedToken };
   }
 
   private clearSessionState() {
+    const currentUserId = this.user()?.id;
     this.token.set(null);
     this.user.set(null);
+    this.authPreloadState.disable();
     this.persistSessionHint(false);
     this.clearLegacyStoredSession();
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('foodbot.recipe-chat.messages.v1');
+      this.clearLocalStoragePrefix(`foodbot.recipe-chat.messages.v1.${currentUserId || 'anonymous'}`);
+      this.clearCachedUserData(currentUserId);
+    }
+  }
+
+  private clearCachedUserData(userId?: string) {
+    const cachePrefix = `foodbot.cache.v1.${userId || 'anonymous'}`;
+    this.clearLocalStoragePrefix(cachePrefix);
+  }
+
+  private clearLocalStoragePrefix(prefix: string) {
+    for (let index = localStorage.length - 1; index >= 0; index--) {
+      const key = localStorage.key(index);
+      if (key?.startsWith(prefix)) {
+        localStorage.removeItem(key);
+      }
+    }
   }
 
   private extractErrorMessage(error: any): string {

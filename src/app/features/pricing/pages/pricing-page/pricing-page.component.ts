@@ -339,6 +339,12 @@ export class PricingPageComponent implements OnInit {
   }
 
   private loadPlans(): void {
+    const cached = this.subscriptionService.getCachedPlans(this.localeCountryCode, this.timeZone);
+    if (cached?.success) {
+      this.market = cached.data.market;
+      this.plans = cached.data.plans;
+    }
+
     this.loadingPlans = true;
     this.subscriptionService.getPlans(this.localeCountryCode, this.timeZone).pipe(
       finalize(() => {

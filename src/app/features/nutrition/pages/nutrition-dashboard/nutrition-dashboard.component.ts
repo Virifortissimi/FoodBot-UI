@@ -28,6 +28,24 @@ export class NutritionDashboardComponent implements OnInit {
   newEntry: Partial<NutritionLog> = { type: 'Dinner' };
   newWaterAmount = 500;
   newExerciseEntry: { activity?: string; durationMin?: number; caloriesBurned?: number } = {};
+  foodPresetSearch = '';
+  readonly waterAmountPresets = [250, 500, 750, 1000];
+  readonly foodPresets = [
+    { name: 'Jollof Rice with Chicken', type: 'Lunch', calories: 620, protein: 32, carbs: 74, fat: 18 },
+    { name: 'Oats with Banana', type: 'Breakfast', calories: 340, protein: 12, carbs: 58, fat: 8 },
+    { name: 'Grilled Fish and Plantain', type: 'Dinner', calories: 520, protein: 38, carbs: 48, fat: 16 },
+    { name: 'Greek Yogurt Bowl', type: 'Snack', calories: 220, protein: 18, carbs: 22, fat: 7 },
+    { name: 'Egusi Soup with Swallow', type: 'Dinner', calories: 700, protein: 30, carbs: 60, fat: 34 },
+    { name: 'Avocado Egg Toast', type: 'Breakfast', calories: 410, protein: 19, carbs: 34, fat: 22 }
+  ];
+  readonly exercisePresets = [
+    { activity: 'Brisk walk', durationMin: 30, caloriesBurned: 140 },
+    { activity: 'Strength training', durationMin: 45, caloriesBurned: 260 },
+    { activity: 'Cycling', durationMin: 30, caloriesBurned: 240 },
+    { activity: 'Yoga', durationMin: 25, caloriesBurned: 90 },
+    { activity: 'Run', durationMin: 20, caloriesBurned: 220 },
+    { activity: 'Dance workout', durationMin: 30, caloriesBurned: 210 }
+  ];
 
   constructor(public nutritionService: NutritionService) { }
 
@@ -88,6 +106,26 @@ export class NutritionDashboardComponent implements OnInit {
       { label: 'Carbs', icon: '🌾', current: this.totals.carbs, goal: this.goals.carbs, color: '#0ea5e9' },
       { label: 'Fat', icon: '🥑', current: this.totals.fat, goal: this.goals.fat, color: '#f59e0b' },
     ];
+  }
+
+  get filteredFoodPresets() {
+    const query = this.foodPresetSearch.trim().toLowerCase();
+    if (!query) {
+      return this.foodPresets;
+    }
+
+    return this.foodPresets.filter(preset =>
+      preset.name.toLowerCase().includes(query) ||
+      preset.type.toLowerCase().includes(query)
+    );
+  }
+
+  applyFoodPreset(preset: typeof this.foodPresets[number]) {
+    this.newEntry = { ...preset };
+  }
+
+  applyExercisePreset(preset: typeof this.exercisePresets[number]) {
+    this.newExerciseEntry = { ...preset };
   }
 
   addEntry() {

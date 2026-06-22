@@ -61,7 +61,7 @@ import { ParticleFieldComponent } from '../../../../shared/components/particle-f
 
             <div class="relative" fbReveal="right">
               <div class="card" style="padding: 0; overflow: hidden; border-radius: 2rem;">
-                <img [src]="recipe()?.imageUrl || 'assets/images/placeholder-recipe.png'" [alt]="recipe()?.name"
+                <img [src]="recipe()?.imageUrl || 'assets/images/optimized/african-dish.jpg'" [alt]="recipe()?.name"
                      style="width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;">
               </div>
               <!-- Floating Decoration -->

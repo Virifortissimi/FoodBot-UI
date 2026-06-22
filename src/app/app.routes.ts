@@ -15,31 +15,36 @@ export const routes: Routes = [
     {
         path: 'meal-planner',
         loadChildren: () => import('./features/meal-planner/meal-planner.module').then(m => m.MealPlannerModule),
-        canActivate: [authGuard, onboardingGuard]
+        canActivate: [authGuard, onboardingGuard],
+        data: { preload: true, preloadAfterAuth: true }
     },
     { path: 'recipes', loadComponent: () => import('./features/recipes/components/recipe-list/recipe-list.component').then(m => m.RecipeListComponent) },
     { path: 'recipes/:slug', loadComponent: () => import('./features/recipes/pages/recipe-detail/recipe-detail.component').then(m => m.RecipeDetailComponent) },
-    { path: 'recipe-chat', loadComponent: () => import('./features/recipe-chat/pages/recipe-chat-page/recipe-chat-page.component').then(m => m.RecipeChatPageComponent), canActivate: [authGuard, onboardingGuard] },
+    { path: 'recipe-chat', loadComponent: () => import('./features/recipe-chat/pages/recipe-chat-page/recipe-chat-page.component').then(m => m.RecipeChatPageComponent), canActivate: [authGuard, onboardingGuard], data: { preload: true, preloadAfterAuth: true } },
     { path: 'pricing', loadChildren: () => import('./features/pricing/pricing.module').then(m => m.PricingModule) },
     {
         path: 'nutrition',
         loadChildren: () => import('./features/nutrition/nutrition.module').then(m => m.NutritionModule),
-        canActivate: [authGuard, onboardingGuard]
+        canActivate: [authGuard, onboardingGuard],
+        data: { preload: true, preloadAfterAuth: true }
     },
     {
         path: 'dashboard',
         loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule),
-        canActivate: [authGuard, onboardingGuard]
+        canActivate: [authGuard, onboardingGuard],
+        data: { preload: true, preloadAfterAuth: true }
     },
     {
         path: 'profile',
         loadChildren: () => import('./features/profile/profile.module').then(m => m.ProfileModule),
-        canActivate: [authGuard, onboardingGuard]
+        canActivate: [authGuard, onboardingGuard],
+        data: { preload: true, preloadAfterAuth: true }
     },
     {
         path: 'shopping-list',
         loadChildren: () => import('./features/shopping-list/shopping-list.module').then(m => m.ShoppingListModule),
-        canActivate: [authGuard, onboardingGuard]
+        canActivate: [authGuard, onboardingGuard],
+        data: { preload: true, preloadAfterAuth: true }
     },
     { path: 'learn/courses', loadComponent: () => import('./features/learn/pages/course-list/course-list.component').then(m => m.CourseListComponent), canActivate: [authGuard, onboardingGuard] },
     { path: 'learn/courses/:slug', loadComponent: () => import('./features/learn/pages/course-detail/course-detail.component').then(m => m.CourseDetailComponent), canActivate: [authGuard, onboardingGuard] },

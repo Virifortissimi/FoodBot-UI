@@ -107,12 +107,7 @@ export class LessonDetailComponent implements OnInit {
 
     this.completing = true;
     this.learningService.completeLesson(id).subscribe({
-      next: () => {
-        this.completing = false;
-        if (this.learningService.currentLesson()) {
-          this.learningService.currentLesson()!.isCompleted = true;
-        }
-      },
+      next: () => this.completing = false,
       error: () => this.completing = false
     });
   }

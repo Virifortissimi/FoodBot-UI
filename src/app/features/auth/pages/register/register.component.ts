@@ -16,7 +16,6 @@ export class RegisterComponent {
   registerForm: FormGroup;
   loading = false;
   showPassword = false;
-
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
